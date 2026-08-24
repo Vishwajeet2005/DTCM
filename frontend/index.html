@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DTCM | Digital Twin Platform</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- ==================== LANDING PAGE ==================== -->
+  <div id="page-landing" class="page">
+    <nav class="landing-nav">
+      <div class="brand">DTCM.</div>
+      <button id="btn-goto-login" class="btn-primary">Sign In</button>
+    </nav>
+    <div class="landing-hero">
+      <div class="hero-content">
+        <h1>Breathe Intelligence.</h1>
+        <p>The definitive digital twin platform for urban CO₂ monitoring, predictive analytics, and automated metropolitan response.</p>
+        <button id="btn-hero-login" class="btn-primary" style="padding: 1rem 2rem; font-size: 1rem; margin-top: 2rem;">Access Platform</button>
+      </div>
+      
+      <!-- Abstract landing graphics -->
+      <div class="bento-grid">
+        <div class="bento-card bento-large">
+          <h3>Predictive ML Engine</h3>
+          <p>Forecast CO₂ saturation points hours before they peak.</p>
+          <div class="chart-abstract">
+            <div class="bar h-30"></div><div class="bar h-60"></div><div class="bar h-40"></div><div class="bar h-90"></div><div class="bar h-50"></div><div class="bar h-80"></div>
+          </div>
+        </div>
+        <div class="bento-card bento-tall">
+          <h3>Live Telemetry</h3>
+          <p>Current urban average</p>
+          <div class="metric-huge">415 <span style="font-size: 1.5rem; color: #666;">ppm</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== AUTHENTICATION ==================== -->
+  <div id="page-login" class="page hidden">
+    <div class="auth-wrapper">
+      <div class="auth-card">
+        <div class="brand" style="margin-bottom: 2rem;">DTCM.</div>
+        <h2>Sign in to platform</h2>
+        <form id="login-form">
+          <input type="email" id="login-email" placeholder="Email address" required>
+          <input type="password" id="login-password" placeholder="Password" required>
+          <div id="login-error" class="error-msg hidden"></div>
+          <button type="submit" id="btn-login" class="btn-primary full-width" style="margin-top: 1rem;">Sign In</button>
+        </form>
+        <div class="auth-switch">
+          <a href="#" id="link-to-register">Create a new account</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="page-register" class="page hidden">
+    <div class="auth-wrapper">
+      <div class="auth-card">
+        <div class="brand" style="margin-bottom: 2rem;">DTCM.</div>
+        <h2>Create Account</h2>
+        <form id="register-form">
+          <input type="text" id="register-name" placeholder="Full Name" required>
+          <input type="email" id="register-email" placeholder="Email address" required>
+          <input type="password" id="register-password" placeholder="Password (min 8 chars)" required>
+          <div id="register-error" class="error-msg hidden"></div>
+          <button type="submit" id="btn-register" class="btn-primary full-width" style="margin-top: 1rem;">Register</button>
+        </form>
+        <div class="auth-switch">
+          <a href="#" id="link-to-login">Already have an account? Sign in</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== APP DASHBOARD ==================== -->
+  <div id="app-main" class="app-shell hidden">
+    
+    <!-- Sidebar Navigation -->
+    <aside class="app-sidebar">
+      <div class="sidebar-header">
+        <div class="brand">DTCM.</div>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-section">MAIN</div>
+        <a href="#" class="nav-link active" data-page="dashboard">Overview</a>
+        <a href="#" class="nav-link" data-page="history">History</a>
+        <a href="#" class="nav-link" data-page="predictions">Predictions</a>
+        <div class="nav-section" style="margin-top: 2rem;">SYSTEM</div>
+        <a href="#" class="nav-link" data-page="twin">Digital Twin</a>
+        <a href="#" class="nav-link" data-page="heatmap">Heatmap</a>
+        <a href="#" class="nav-link" data-page="alerts">Alerts</a>
+      </nav>
+      
+      <div class="sidebar-footer">
+        <div class="user-info">
+          <div class="user-details">
+            <span id="user-display" style="font-weight: 500;">Admin</span>
+          </div>
+        </div>
+        <button id="btn-logout" class="btn-icon">Logout</button>
+      </div>
+    </aside>
+
+    <main class="app-content">
+      
+      <!-- DASHBOARD -->
+      <section id="page-dashboard" class="app-page hidden">
+        <header class="page-header">
+          <div>
+            <h1>Dashboard</h1>
+            <p>System Overview & Live Telemetry</p>
+          </div>
+        </header>
+
+        <div class="kpi-grid">
+          <div class="kpi-card" id="kpi-co2">
+            <div class="kpi-label">Avg CO₂</div>
+            <div class="kpi-val"><span class="kpi-value">--</span> <span class="kpi-unit">ppm</span></div>
+          </div>
+          <div class="kpi-card" id="kpi-temp">
+            <div class="kpi-label">Avg Temp</div>
+            <div class="kpi-val"><span class="kpi-value">--</span> <span class="kpi-unit">°C</span></div>
+          </div>
+          <div class="kpi-card" id="kpi-hum">
+            <div class="kpi-label">Avg Humidity</div>
+            <div class="kpi-val"><span class="kpi-value">--</span> <span class="kpi-unit">%</span></div>
+          </div>
+          <div class="kpi-card" id="kpi-pm25">
+            <div class="kpi-label">PM2.5</div>
+            <div class="kpi-val"><span class="kpi-value">--</span> <span class="kpi-unit">µg/m³</span></div>
+          </div>
+        </div>
+
+        <div class="dashboard-main-grid">
+          <div class="panel">
+            <div class="panel-header">
+              <h3>Live Telemetry</h3>
+            </div>
+            <div class="chart-wrapper"><canvas id="live-co2-chart"></canvas></div>
+          </div>
+          <div class="panel">
+            <div class="panel-header">
+              <h3>Zone Status</h3>
+            </div>
+            <div id="zone-grid" class="zone-list">Loading...</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- HISTORY -->
+      <section id="page-history" class="app-page hidden">
+        <header class="page-header">
+          <div>
+            <h1>Historical Data</h1>
+            <p>Analyze past environmental metrics</p>
+          </div>
+        </header>
+        <div class="controls-bar panel">
+          <select id="history-sensor" class="input-control"><option value="">All Sensors</option></select>
+          <input type="datetime-local" id="history-start" class="input-control">
+          <input type="datetime-local" id="history-end" class="input-control">
+          <button id="btn-load-history" class="btn-primary">Apply Filter</button>
+        </div>
+        <div class="panel panel-full">
+          <div class="chart-wrapper"><canvas id="history-chart"></canvas></div>
+        </div>
+      </section>
+
+      <!-- PREDICTIONS -->
+      <section id="page-predictions" class="app-page hidden">
+        <header class="page-header">
+          <div>
+            <h1>AI Forecasts</h1>
+            <p>SARIMA and Random Forest predictive models</p>
+          </div>
+        </header>
+        <div class="controls-bar panel">
+          <select id="predict-sensor" class="input-control"><option value="1">Sensor 1</option></select>
+          <input type="number" id="predict-hours" class="input-control" value="24" min="1" max="72">
+          <button id="btn-run-predict" class="btn-primary">Generate Forecast</button>
+        </div>
+        <div class="panel panel-full">
+          <div class="chart-wrapper"><canvas id="predict-chart"></canvas></div>
+        </div>
+      </section>
+
+      <!-- DIGITAL TWIN -->
+      <section id="page-twin" class="app-page hidden">
+        <header class="page-header">
+          <div>
+            <h1>Digital Twin</h1>
+            <p>Simulate urban interventions</p>
+          </div>
+        </header>
+        <div class="dashboard-main-grid">
+          <div class="panel">
+            <h3>Scenario Parameters</h3>
+            <div class="form-group">
+              <label>Traffic Reduction (%)</label>
+              <input type="number" id="sim-traffic" class="input-control" value="20">
+            </div>
+            <div class="form-group">
+              <label>Ventilation Increase (%)</label>
+              <input type="number" id="sim-ventilation" class="input-control" value="15">
+            </div>
+            <button id="btn-run-sim" class="btn-primary" style="width: 100%; margin-top: 1rem;">Execute Simulation</button>
+          </div>
+          <div class="panel">
+            <canvas id="sim-chart"></canvas>
+          </div>
+        </div>
+      </section>
+
+      <!-- HEATMAP -->
+      <section id="page-heatmap" class="app-page hidden">
+        <header class="page-header">
+          <div>
+            <h1>Spatial Heatmap</h1>
+            <p>Geographic distribution of CO₂</p>
+          </div>
+        </header>
+        <div class="panel panel-full" style="height: 600px; padding: 0; overflow: hidden;">
+          <div id="map" style="height: 100%; width: 100%;"></div>
+        </div>
+      </section>
+
+      <!-- ALERTS -->
+      <section id="page-alerts" class="app-page hidden">
+        <header class="page-header">
+          <div>
+            <h1>System Alerts</h1>
+            <p>Real-time threshold breaches</p>
+          </div>
+        </header>
+        <div class="panel panel-full">
+          <div id="alerts-container" class="alerts-list"></div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- Scripts -->
+  <script src="js/dashboard.js?v=4"></script>
+  <script src="js/charts.js?v=7"></script>
+  <script src="js/simulation.js?v=7"></script>
+  <script src="js/heatmap.js?v=5"></script>
+  <script>
+    /* ==========================================
+       ROUTING AND AUTHENTICATION LOGIC
+       ========================================== */
+    const USER_KEY = 'dtcm_user';
+    
+    function getToken() { return localStorage.getItem('dtcm_token'); }
+    function setToken(t) { localStorage.setItem('dtcm_token', t); }
+    function clearAuth() { localStorage.removeItem('dtcm_token'); localStorage.removeItem(USER_KEY); }
+
+    function showLanding() {
+      document.querySelectorAll('.page, .app-shell').forEach(el => el.classList.add('hidden'));
+      document.getElementById('page-landing').classList.remove('hidden');
+    }
+
+    function showLogin() {
+      document.querySelectorAll('.page, .app-shell').forEach(el => el.classList.add('hidden'));
+      document.getElementById('page-login').classList.remove('hidden');
+    }
+
+    function showApp() {
+      document.querySelectorAll('.page').forEach(el => el.classList.add('hidden'));
+      document.getElementById('app-main').classList.remove('hidden');
+      var raw = localStorage.getItem(USER_KEY);
+      if(raw) {
+        var u = JSON.parse(raw);
+        document.getElementById('user-display').textContent = u.username || u.email;
+      }
+    }
+
+    var currentPage = null;
+    var pageInit = {
+      dashboard: function() { if (typeof initDashboard === 'function') initDashboard(); },
+      heatmap: function() { if (typeof initHeatmap === 'function') initHeatmap(); },
+      alerts: function() { if (typeof initAlerts === 'function') initAlerts(); },
+      history: function() { if (typeof initHistory === 'function') initHistory(); }
+    };
+
+    function showPage(pageName) {
+      if(!getToken()) { showLogin(); return; }
+      document.querySelectorAll('.app-page').forEach(el => el.classList.add('hidden'));
+      document.getElementById('page-' + pageName).classList.remove('hidden');
+      document.querySelectorAll('.nav-link').forEach(link => {
+        link.classList.toggle('active', link.dataset.page === pageName);
+      });
+      currentPage = pageName;
+      if (pageInit[pageName]) pageInit[pageName]();
+    }
+
+    // Event Listeners
+    document.querySelectorAll('.nav-link').forEach(link => {
+      link.addEventListener('click', e => {
+        e.preventDefault();
+        showPage(link.dataset.page);
+      });
+    });
+
+    document.getElementById('btn-goto-login').addEventListener('click', showLogin);
+    document.getElementById('btn-hero-login').addEventListener('click', showLogin);
+    
+    document.getElementById('link-to-register').addEventListener('click', (e) => {
+      e.preventDefault();
+      document.getElementById('page-login').classList.add('hidden');
+      document.getElementById('page-register').classList.remove('hidden');
+    });
+    document.getElementById('link-to-login').addEventListener('click', (e) => {
+      e.preventDefault();
+      document.getElementById('page-register').classList.add('hidden');
+      document.getElementById('page-login').classList.remove('hidden');
+    });
+
+    document.getElementById('btn-logout').addEventListener('click', () => {
+      clearAuth();
+      showLanding();
+    });
+
+    // Login Form
+    document.getElementById('login-form').addEventListener('submit', async e => {
+      e.preventDefault();
+      var email = document.getElementById('login-email').value.trim();
+      var password = document.getElementById('login-password').value;
+      var err = document.getElementById('login-error');
+      err.classList.add('hidden');
+      
+      try {
+        var res = await fetch('http://127.0.0.1:5000/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({email, password})
+        });
+        var data = await res.json();
+        if(!res.ok) {
+          err.textContent = data.message || data.error || 'Login failed';
+          err.classList.remove('hidden');
+          return;
+        }
+        setToken(data.access_token);
+        localStorage.setItem(USER_KEY, JSON.stringify({ email: email }));
+        showApp();
+        showPage('dashboard');
+      } catch(e) {
+        err.textContent = 'Network error';
+        err.classList.remove('hidden');
+      }
+    });
+
+    // Register Form
+    document.getElementById('register-form').addEventListener('submit', async e => {
+      e.preventDefault();
+      var name = document.getElementById('register-name').value.trim();
+      var email = document.getElementById('register-email').value.trim();
+      var password = document.getElementById('register-password').value;
+      var err = document.getElementById('register-error');
+      err.classList.add('hidden');
+      
+      try {
+        var res = await fetch('http://127.0.0.1:5000/api/auth/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({name, email, password})
+        });
+        if(!res.ok) {
+          var data = await res.json();
+          err.textContent = data.message || data.error || 'Registration failed';
+          err.classList.remove('hidden');
+          return;
+        }
+        alert('Registration successful! You can now sign in.');
+        document.getElementById('link-to-login').click();
+      } catch(e) {
+        err.textContent = 'Network error';
+        err.classList.remove('hidden');
+      }
+    });
+
+    // Bootstrap
+    (function bootstrap() {
+      if(getToken()) { showApp(); showPage('dashboard'); }
+      else { showLanding(); }
+    })();
+  </script>
+</body>
+</html>
+
+
+
+
+
+
