@@ -1,66 +1,39 @@
-/**
- * DTCM Heatmap module - India Edition
- */
-
-const SENSOR_LOCATIONS = {
-    "Connaught Place, New Delhi": { lat: 28.6315, lng: 77.2167 },
-    "Bandra Kurla Complex, Mumbai": { lat: 19.0596, lng: 72.8656 },
-    "Electronic City, Bengaluru": { lat: 12.8452, lng: 77.6602 },
-    "T. Nagar, Chennai": { lat: 13.0418, lng: 80.2341 },
-    "Salt Lake Sector V, Kolkata": { lat: 22.5804, lng: 88.4332 }
-};
-
-let map = null;
+window.map = null;
 let markers = [];
 
-async function initHeatmap() {
-    const mapElement = document.getElementById('map');
-    if (!mapElement) return;
+function initMap() {
+    window.map = L.map('map').setView([40.7128, -74.0060], 12); // Default to NYC roughly
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(window.map);
+}
 
-    if (!map) {
-        // Center on India
-        map = L.map('map').setView([20.5937, 78.9629], 5);
-        
-        // Dark theme tiles
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-            attribution: '&copy; OpenStreetMap contributors &copy; CARTO'
-        }).addTo(map);
-    }
+function updateMap(data) {
+    if (!window.map) initMap();
     
     // Clear old markers
-    markers.forEach(m => map.removeLayer(m));
+    markers.forEach(m => window.map.removeLayer(m));
     markers = [];
-
-    try {
-        const token = localStorage.getItem('dtcm_token');
-        if (!token) return;
-
-        const response = await fetch('http://127.0.0.1:5000/api/data/live', {
-            headers: { 'Authorization': 'Bearer ' + token }
-        });
+    
+    // Mock coordinates based on index since synthetic data doesn't have lat/lon
+    const baseLat = 40.7128;
+    const baseLon = -74.0060;
+    
+    data.forEach((d, i) => {
+        const lat = baseLat + (i * 0.02);
+        const lon = baseLon + (i * 0.02);
         
-        if (!response.ok) throw new Error('Failed to fetch live data for heatmap');
-        const data = await response.json();
+        let color = 'green';
+        if (d.co2 > 500) color = 'red';
+        else if (d.co2 > 450) color = 'orange';
         
-        data.forEach(sensor => {
-            const coords = SENSOR_LOCATIONS[sensor.sensor_name];
-            if (coords) {
-                const isCritical = sensor.co2_level > 500;
-                const color = isCritical ? '#ff4444' : (sensor.co2_level > 450 ? '#ffaa00' : '#00cc66');
-                
-                const circle = L.circle([coords.lat, coords.lng], {
-                    color: color,
-                    fillColor: color,
-                    fillOpacity: 0.6,
-                    radius: sensor.co2_level * 50 // Scale radius by CO2
-                }).addTo(map);
-                
-                circle.bindPopup(`<b>${sensor.sensor_name}</b><br>CO₂ Level: ${sensor.co2_level.toFixed(1)} ppm<br>Status: ${sensor.severity_label}`);
-                markers.push(circle);
-            }
-        });
+        const marker = L.circleMarker([lat, lon], {
+            color: color,
+            radius: 10,
+            fillOpacity: 0.7
+        }).addTo(window.map)
+        .bindPopup(`<b>${d.location}</b><br>CO₂: ${d.co2.toFixed(1)} ppm`);
         
-    } catch (error) {
-        console.error('Error updating heatmap:', error);
-    }
+        markers.push(marker);
+    });
 }

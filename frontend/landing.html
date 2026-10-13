@@ -2,297 +2,1185 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>DTCM | Digital Twin CO2 Monitor</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DTCM | Digital Twin CO₂ Monitor for Indian Metropolitan Air Sheds</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=Space+Grotesk:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     :root {
-      --bg-base: #060608;
-      --bg-card: #0d0d12;
-      --bg-card-hover: #14141b;
-      --text-main: #ffffff;
-      --text-muted: #848492;
-      --accent: #e5e5ea;
-      --border: rgba(255, 255, 255, 0.06);
+      --bg-base: #000000;
+      --bg-surface: #09090b;
+      --bg-surface-elevated: #111115;
+      --border-subtle: #1c1c21;
+      --border-strong: #27272e;
+      --text-primary: #ffffff;
+      --text-secondary: #a1a1aa;
+      --text-muted: #71717a;
+      --accent-blue: #3b82f6;
+      --accent-emerald: #22c55e;
+      --status-normal: #22c55e;
+      --status-warning: #f59e0b;
+      --status-critical: #ef4444;
+      --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
     }
-    
-    * { box-sizing: border-box; }
-    
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
     body {
-      margin: 0;
       background-color: var(--bg-base);
-      color: var(--text-main);
-      font-family: 'Inter', sans-serif;
+      color: var(--text-primary);
+      font-family: var(--font-sans);
+      min-height: 100vh;
       -webkit-font-smoothing: antialiased;
       line-height: 1.5;
     }
 
-    /* Minimalist Navigation */
+    /* Navigation */
     nav {
+      position: sticky;
+      top: 0;
+      z-index: 50;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 2rem 4rem;
-      border-bottom: 1px solid var(--border);
+      padding: 1.25rem 3.5rem;
+      background: rgba(0, 0, 0, 0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border-subtle);
     }
-    .logo {
-      font-family: 'Space Grotesk', sans-serif;
-      font-weight: 600;
-      font-size: 1.2rem;
-      letter-spacing: -0.02em;
-    }
-    .nav-links { display: flex; gap: 2.5rem; }
-    .nav-links a {
-      color: var(--text-muted);
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
       text-decoration: none;
-      font-size: 0.9rem;
-      transition: color 0.3s;
-    }
-    .nav-links a:hover { color: var(--text-main); }
-    .btn-login {
-      background: transparent;
-      border: 1px solid var(--border);
-      color: var(--text-main);
-      padding: 0.6rem 1.5rem;
-      border-radius: 100px;
-      font-family: 'Inter';
-      font-size: 0.9rem;
-      cursor: pointer;
-      transition: all 0.3s;
-    }
-    .btn-login:hover {
-      background: var(--text-main);
-      color: var(--bg-base);
+      color: inherit;
     }
 
-    /* Hero */
-    .hero {
-      padding: 8rem 4rem 6rem;
-      max-width: 1200px;
+    .brand-logo {
+      width: 28px;
+      height: 28px;
+      background: #ffffff;
+      color: #000000;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-mono);
+      font-weight: 700;
+      font-size: 0.85rem;
     }
-    .hero h1 {
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: 5.5rem;
-      font-weight: 400;
-      line-height: 1.05;
-      letter-spacing: -0.03em;
-      margin: 0 0 2rem 0;
+
+    .brand-title {
+      font-size: 0.95rem;
+      font-weight: 600;
+      letter-spacing: -0.01em;
     }
-    .hero p {
-      font-size: 1.25rem;
+
+    .brand-badge {
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      background: var(--bg-surface-elevated);
       color: var(--text-muted);
-      max-width: 600px;
-      font-weight: 300;
-      margin: 0;
+      padding: 2px 8px;
+      border-radius: 3px;
+      border: 1px solid var(--border-subtle);
     }
 
-    /* Bento Grid */
-    .bento {
-      padding: 0 4rem 8rem;
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      grid-auto-rows: 320px;
-      gap: 1.5rem;
-      max-width: 1600px;
+    .nav-links {
+      display: flex;
+      gap: 2rem;
+      align-items: center;
+    }
+
+    .nav-links a {
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 0.85rem;
+      transition: color 0.15s;
+    }
+
+    .nav-links a:hover {
+      color: var(--text-primary);
+    }
+
+    .btn-auth {
+      background: #ffffff;
+      color: #000000;
+      border: none;
+      padding: 0.55rem 1.25rem;
+      border-radius: 4px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: opacity 0.15s;
+    }
+
+    .btn-auth:hover {
+      opacity: 0.9;
+    }
+
+    /* Hero Section */
+    .hero {
+      padding: 6.5rem 3.5rem 4rem;
+      max-width: 1240px;
       margin: 0 auto;
     }
 
-    .card {
-      background-color: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: 24px;
-      padding: 2.5rem;
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 4px 12px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 100px;
+      font-size: 0.72rem;
+      font-family: var(--font-mono);
+      color: var(--text-secondary);
+      margin-bottom: 2rem;
+    }
+
+    .status-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--status-normal);
+    }
+
+    .hero h1 {
+      font-size: 3.8rem;
+      font-weight: 600;
+      line-height: 1.08;
+      letter-spacing: -0.035em;
+      margin-bottom: 1.5rem;
+      color: #ffffff;
+    }
+
+    .hero p {
+      font-size: 1.15rem;
+      color: var(--text-secondary);
+      max-width: 740px;
+      line-height: 1.6;
+      margin-bottom: 2.5rem;
+      font-weight: 300;
+    }
+
+    .hero-cta {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+    }
+
+    .btn-primary {
+      background: #ffffff;
+      color: #000000;
+      border: none;
+      padding: 0.85rem 1.75rem;
+      border-radius: 4px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: opacity 0.15s;
+    }
+
+    .btn-primary:hover {
+      opacity: 0.9;
+    }
+
+    .btn-secondary {
+      background: var(--bg-surface);
+      color: var(--text-primary);
+      border: 1px solid var(--border-subtle);
+      padding: 0.85rem 1.75rem;
+      border-radius: 4px;
+      font-size: 0.88rem;
+      font-weight: 500;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.15s;
+    }
+
+    .btn-secondary:hover {
+      border-color: var(--border-strong);
+      background: var(--bg-surface-elevated);
+    }
+
+    /* Live Telemetry Bar */
+    .telemetry-bar {
+      margin: 3.5rem auto 0;
+      max-width: 1240px;
+      padding: 0 3.5rem;
+    }
+
+    .telemetry-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+      padding: 1.25rem 1.75rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+    }
+
+    .telemetry-item {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .telemetry-label {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-muted);
+      font-family: var(--font-sans);
+    }
+
+    .telemetry-value {
+      font-family: var(--font-mono);
+      font-size: 1.15rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .telemetry-sub {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      color: var(--status-normal);
+    }
+
+    /* Bento Grid */
+    .section-container {
+      max-width: 1240px;
+      margin: 6rem auto;
+      padding: 0 3.5rem;
+    }
+
+    .section-header {
+      margin-bottom: 2.5rem;
+    }
+
+    .section-tag {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--accent-blue);
+      margin-bottom: 0.5rem;
+      display: block;
+    }
+
+    .section-title {
+      font-size: 2rem;
+      font-weight: 600;
+      letter-spacing: -0.025em;
+      margin-bottom: 0.5rem;
+    }
+
+    .section-desc {
+      font-size: 0.95rem;
+      color: var(--text-secondary);
+      max-width: 620px;
+    }
+
+    .bento-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.25rem;
+    }
+
+    .bento-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+      padding: 2rem;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      transition: background-color 0.4s ease, transform 0.4s ease;
-      position: relative;
-      overflow: hidden;
-    }
-    .card:hover {
-      background-color: var(--bg-card-hover);
-      transform: translateY(-4px);
-    }
-    
-    .card-large { grid-column: span 2; grid-row: span 2; }
-    .card-medium { grid-column: span 1; grid-row: span 1; }
-    .card-tall { grid-column: span 1; grid-row: span 2; }
-    .card-wide { grid-column: span 2; grid-row: span 1; }
-
-    .card h3 {
-      font-family: 'Space Grotesk', sans-serif;
-      font-weight: 500;
-      font-size: 1.5rem;
-      margin: 0 0 0.75rem 0;
-    }
-    .card p {
-      color: var(--text-muted);
-      font-size: 0.95rem;
-      margin: 0;
-      font-weight: 300;
+      transition: border-color 0.2s;
     }
 
-    /* Card Specifics */
-    .metric-huge {
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: 6rem;
-      font-weight: 300;
-      line-height: 1;
-      letter-spacing: -0.04em;
-    }
-    .metric-sub {
-      color: var(--text-muted);
-      font-size: 0.85rem;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      margin-top: 1rem;
+    .bento-card:hover {
+      border-color: var(--border-strong);
     }
 
-    /* Custom Data Visuals */
-    .chart-container {
-      flex-grow: 1;
+    .bento-card.span-2 {
+      grid-column: span 2;
+    }
+
+    .bento-card h3 {
+      font-size: 1.15rem;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      margin-bottom: 0.6rem;
+    }
+
+    .bento-card p {
+      font-size: 0.84rem;
+      color: var(--text-secondary);
+      line-height: 1.55;
+    }
+
+    .card-footer-metric {
       margin-top: 2rem;
-      border-top: 1px solid var(--border);
+      padding-top: 1.25rem;
+      border-top: 1px solid var(--border-subtle);
       display: flex;
+      justify-content: space-between;
       align-items: flex-end;
-      padding-top: 2rem;
     }
-    
-    .bar {
-      flex: 1;
-      background: rgba(255,255,255,0.05);
-      margin: 0 4px;
-      border-radius: 4px 4px 0 0;
-      transition: height 1s ease;
-    }
-    .bar:hover { background: rgba(255,255,255,0.2); }
 
-    .badge-container {
-      display: flex;
-      gap: 1rem;
-      margin-top: auto;
+    .metric-num {
+      font-family: var(--font-mono);
+      font-size: 2.25rem;
+      font-weight: 600;
+      line-height: 1;
     }
-    .badge {
-      padding: 0.5rem 1rem;
-      border: 1px solid var(--border);
-      border-radius: 100px;
-      font-size: 0.75rem;
+
+    .metric-caption {
+      font-size: 0.72rem;
+      color: var(--text-muted);
       text-transform: uppercase;
       letter-spacing: 0.05em;
-      color: var(--text-muted);
-    }
-    .badge.active {
-      background: rgba(255,255,255,0.1);
-      color: var(--text-main);
-      border-color: rgba(255,255,255,0.3);
     }
 
-    /* Animations */
-    .animate-up {
-      opacity: 0;
-      transform: translateY(30px);
-      animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    /* Stations Grid */
+    .stations-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+      margin-top: 2rem;
     }
-    @keyframes fadeInUp {
-      to { opacity: 1; transform: translateY(0); }
+
+    .station-tile {
+      background: var(--bg-surface-elevated);
+      border: 1px solid var(--border-subtle);
+      border-radius: 4px;
+      padding: 1.15rem 1.35rem;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      cursor: pointer;
+      transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+      position: relative;
+    }
+
+    .station-tile:hover {
+      border-color: var(--border-strong);
+      background: #141419;
+      transform: translateY(-2px);
+    }
+
+    .station-id {
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      color: var(--text-muted);
+    }
+
+    .station-name {
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .station-desc {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      line-height: 1.4;
+    }
+
+    .station-tile-inspect {
+      font-size: 0.72rem;
+      color: var(--accent-blue);
+      font-weight: 500;
+      margin-top: 6px;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    /* Landing Deep-Dive Modal */
+    .landing-modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.88);
+      backdrop-filter: blur(8px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 1rem;
+    }
+
+    .landing-modal-overlay.open {
+      display: flex;
+    }
+
+    .landing-modal-window {
+      background: #09090b;
+      border: 1px solid var(--border-strong);
+      border-radius: 6px;
+      width: 100%;
+      max-width: 780px;
+      max-height: 90vh;
+      overflow-y: auto;
+      padding: 24px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.95);
+      animation: modalFadeIn 0.18s ease-out;
+    }
+
+    @keyframes modalFadeIn {
+      from { opacity: 0; transform: scale(0.97); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    /* CTA Section */
+    .cta-banner {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      padding: 4rem 3rem;
+      text-align: center;
+      margin: 4rem auto 6rem;
+      max-width: 1240px;
+    }
+
+    .cta-banner h2 {
+      font-size: 2.4rem;
+      font-weight: 600;
+      letter-spacing: -0.025em;
+      margin-bottom: 1rem;
+    }
+
+    .cta-banner p {
+      font-size: 1.05rem;
+      color: var(--text-secondary);
+      max-width: 580px;
+      margin: 0 auto 2.25rem;
+    }
+
+    /* Footer */
+    footer {
+      border-top: 1px solid var(--border-subtle);
+      padding: 2.5rem 3.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+
+    .footer-links {
+      display: flex;
+      gap: 1.5rem;
+    }
+
+    .footer-links a {
+      color: var(--text-secondary);
+      text-decoration: none;
+      transition: color 0.15s;
+    }
+
+    .footer-links a:hover {
+      color: var(--text-primary);
+    }
+
+    @media (max-width: 900px) {
+      nav { padding: 1rem 1.5rem; }
+      .hero { padding: 4rem 1.5rem 2rem; }
+      .hero h1 { font-size: 2.5rem; }
+      .telemetry-bar { padding: 0 1.5rem; }
+      .section-container { padding: 0 1.5rem; margin: 4rem auto; }
+      .bento-grid { grid-template-columns: 1fr; }
+      .bento-card.span-2 { grid-column: span 1; }
+      .stations-grid { grid-template-columns: 1fr; }
+      .cta-banner { margin: 3rem 1.5rem; padding: 2.5rem 1.5rem; }
+      footer { padding: 2rem 1.5rem; flex-direction: column; gap: 1rem; }
     }
   </style>
 </head>
 <body>
 
-  <nav class="animate-up" style="animation-delay: 0.1s">
-    <div class="logo">DTCM</div>
+  <!-- Navigation -->
+  <nav>
+    <a href="/" class="brand">
+      <div class="brand-logo">D</div>
+      <div>
+        <div class="brand-title">DTCM</div>
+      </div>
+      <span class="brand-badge">Indian Telemetry Grid</span>
+    </a>
     <div class="nav-links">
-      <a href="#platform">Platform</a>
-      <a href="#technology">Technology</a>
-      <a href="#contact">Contact</a>
+      <a href="#grid">Stations</a>
+      <a href="#technology">ML Engine</a>
+      <a href="#twin">Digital Twin</a>
+      <a href="#compliance">CPCB Compliance</a>
+      <a href="/login" class="btn-auth">
+        <span>Authenticate</span>
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <line x1="5" y1="12" x2="19" y2="12"></line>
+          <polyline points="12 5 19 12 12 19"></polyline>
+        </svg>
+      </a>
     </div>
-    <button class="btn-login" onclick="window.location.href='index.html'">Access Platform</button>
   </nav>
 
-  <section class="hero animate-up" style="animation-delay: 0.2s">
-    <h1>Breathe intelligence<br>into the urban canopy.</h1>
-    <p>A high-fidelity digital twin engineered for urban authorities. Monitor, predict, and optimize CO₂ capture across the metropolitan grid.</p>
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="hero-badge">
+      <span class="status-dot"></span>
+      <span>CPCB / NAAQS CALIBRATED DIGITAL TWIN PLATFORM</span>
+    </div>
+    <h1>Predictive Carbon Capture & Atmospheric Intelligence for Indian Metros.</h1>
+    <p>A high-fidelity 6-layer digital twin platform monitoring street-level CO₂ saturation, predicting diurnal rush-hour peaks with Random Forest (R² = 0.865), and optimizing Direct Air Capture (DAC) deployment across Delhi NCR, Mumbai, Bengaluru, Chennai, and Kolkata.</p>
+    <div class="hero-cta">
+      <a href="/login" class="btn-primary">
+        <span>Access Platform</span>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <line x1="5" y1="12" x2="19" y2="12"></line>
+          <polyline points="12 5 19 12 12 19"></polyline>
+        </svg>
+      </a>
+      <a href="#grid" class="btn-secondary">Explore National Grid</a>
+    </div>
   </section>
 
-  <section class="bento animate-up" style="animation-delay: 0.3s">
-    
-    <!-- Large Card -->
-    <div class="card card-large">
-      <div>
-        <h3>Predictive Engine</h3>
-        <p>Forecast CO₂ saturation points hours before they peak using SARIMA spatial-temporal analysis.</p>
+  <!-- Live Telemetry KPI Bar -->
+  <div class="telemetry-bar">
+    <div class="telemetry-card">
+      <div class="telemetry-item">
+        <span class="telemetry-label">Active Air Sheds</span>
+        <span class="telemetry-value">6 Stations</span>
+        <span class="telemetry-sub">Delhi &bull; Mumbai &bull; Bengaluru &bull; Chennai &bull; Kolkata</span>
       </div>
-      <div class="chart-container">
-        <!-- Abstract Bar Chart -->
-        <div class="bar" style="height: 30%"></div>
-        <div class="bar" style="height: 45%"></div>
-        <div class="bar" style="height: 20%"></div>
-        <div class="bar" style="height: 65%"></div>
-        <div class="bar" style="height: 80%"></div>
-        <div class="bar" style="height: 40%"></div>
-        <div class="bar" style="height: 90%; background: rgba(255,255,255,0.9);"></div>
-        <div class="bar" style="height: 50%"></div>
+      <div class="telemetry-item">
+        <span class="telemetry-label">Model Precision</span>
+        <span class="telemetry-value" id="kpiR2">R² 0.865</span>
+        <span class="telemetry-sub">Random Forest Regressor</span>
       </div>
-    </div>
-
-    <!-- Tall Card -->
-    <div class="card card-tall">
-      <div>
-        <h3>Live Telemetry</h3>
-        <p>Current urban average across all edge nodes.</p>
+      <div class="telemetry-item">
+        <span class="telemetry-label">Forecast Error</span>
+        <span class="telemetry-value" id="kpiMae">8.25 ppm</span>
+        <span class="telemetry-sub">Mean Absolute Error</span>
       </div>
-      <div style="display: flex; flex-direction: column; justify-content: center; height: 100%;">
-        <div class="metric-huge">415</div>
-        <div style="font-size: 1.5rem; color: var(--text-muted); margin-top: -10px;">ppm</div>
-        <div class="metric-sub">Air Quality Index: Moderate</div>
+      <div class="telemetry-item">
+        <span class="telemetry-label">Atmospheric Baseline</span>
+        <span class="telemetry-value">52,572 Rows</span>
+        <span class="telemetry-sub">Hourly Diurnal / Seasonal Telemetry</span>
       </div>
     </div>
+  </div>
 
-    <!-- Medium Card 1 -->
-    <div class="card card-medium">
-      <div>
-        <h3>Sensor Grid</h3>
-        <p>Sub-second ingestion from 1,250+ active edge nodes.</p>
+  <!-- Bento Grid: Platform Capabilities -->
+  <section class="section-container" id="technology">
+    <div class="section-header">
+      <span class="section-tag">Empirical Science & AI</span>
+      <h2 class="section-title">Engineered for Environmental Authorities & Smart Cities</h2>
+      <p class="section-desc">Six decoupled architectural layers bridging real-world meteorology, IoT sensor telemetry, and predictive machine learning models.</p>
+    </div>
+
+    <div class="bento-grid">
+      <!-- Card 1: Forecasting -->
+      <div class="bento-card span-2">
+        <div>
+          <h3>Empirical Autoregressive Forecasting Engine</h3>
+          <p>Trained on 52,572 rows of diurnal rush-hour cycles and seasonal winter thermal inversions. Predicts next-hour, 24-hour, and 30-day CO₂ trajectory with 90% confidence bounds across critical industrial nodes.</p>
+        </div>
+        <div class="card-footer-metric">
+          <div>
+            <div class="metric-caption">Random Forest Cross-Validation</div>
+            <div class="metric-num">0.865 <span style="font-size: 1rem; color: var(--text-muted);">R² Score</span></div>
+          </div>
+          <span style="font-family: var(--font-mono); font-size: 0.76rem; color: var(--status-normal);">200 Estimators &bull; Depth 15</span>
+        </div>
       </div>
-      <div style="display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; margin-top: auto;">
-        <!-- Abstract dot grid -->
-        <script>
-          for(let i=0; i<24; i++) {
-            const opacity = Math.random() * 0.5 + 0.1;
-            document.write(`<div style="aspect-ratio: 1; border-radius: 50%; background: rgba(255,255,255,${opacity});"></div>`);
+
+      <!-- Card 2: Digital Twin -->
+      <div class="bento-card">
+        <div>
+          <h3>Digital Twin Sandbox</h3>
+          <p>Simulate the atmospheric impact of traffic curtailment, urban Miyawaki forests, and modular solid-sorbent Direct Air Capture (DAC) scrubbers before ground deployment.</p>
+        </div>
+        <div class="card-footer-metric">
+          <div>
+            <div class="metric-caption">Max Air Shed Mitigation</div>
+            <div class="metric-num">-42 <span style="font-size: 1rem; color: var(--text-muted);">ppm</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 3: Capture Optimizer -->
+      <div class="bento-card">
+        <div>
+          <h3>Carbon Capture Placement Matrix</h3>
+          <p>Multi-criteria ranking scoring each metropolitan zone by Emission Intensity &times; Population Density &times; Land Accessibility to determine maximum capital ROI.</p>
+        </div>
+        <div class="card-footer-metric">
+          <div>
+            <div class="metric-caption">Priority 1 Node</div>
+            <div class="metric-num" style="font-size: 1.5rem;">Anand Vihar ISBT</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 4: Compliance -->
+      <div class="bento-card span-2">
+        <div>
+          <h3>CPCB / NAAQS Regulatory Compliance & Telemetry Hub</h3>
+          <p>Automated compilation of legal PDF audit certificates and raw CSV data ingestion. Role-based access ensures separation between administrators, scientific researchers, and public observers.</p>
+        </div>
+        <div class="card-footer-metric">
+          <div>
+            <div class="metric-caption">Compliance Standard</div>
+            <div class="metric-num" style="font-size: 1.4rem;">NAAQS 2009 Standards</div>
+          </div>
+          <span style="font-family: var(--font-mono); font-size: 0.76rem; color: var(--text-secondary);">Direct Air Quality Audit PDF</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- National Sensor Grid -->
+  <section class="section-container" id="grid">
+    <div class="section-header">
+      <span class="section-tag">Geospatial Grid</span>
+      <h2 class="section-title">Indian Metropolitan Air Sheds Monitored</h2>
+      <p class="section-desc">Continuous telemetry monitoring across critical industrial clusters, financial corridors, and interstate transit corridors.</p>
+    </div>
+
+    <div class="stations-grid">
+      <div class="station-tile" onclick="openLandingCityModal(1)" title="Click to inspect Anand Vihar station telemetry & intelligence">
+        <span class="station-id">STATION DL-01 &bull; 28.6469° N, 77.3160° E</span>
+        <div class="station-name">Anand Vihar ISBT, New Delhi</div>
+        <div class="station-desc">Interstate transit terminal subject to severe winter temperature inversion and vehicular idling. Priority 1 DAC scrubber target.</div>
+        <div class="station-tile-inspect">Inspect Station Intelligence &rarr;</div>
+      </div>
+
+      <div class="station-tile" onclick="openLandingCityModal(2)" title="Click to inspect Bandra Kurla Complex telemetry & intelligence">
+        <span class="station-id">STATION MH-01 &bull; 19.0657° N, 72.8687° E</span>
+        <div class="station-name">Bandra Kurla Complex, Mumbai</div>
+        <div class="station-desc">Commercial financial district with high arterial commuter traffic, balanced by maritime coastal breeze dispersion.</div>
+        <div class="station-tile-inspect">Inspect Station Intelligence &rarr;</div>
+      </div>
+
+      <div class="station-tile" onclick="openLandingCityModal(3)" title="Click to inspect Peenya Industrial Area telemetry & intelligence">
+        <span class="station-id">STATION KA-01 &bull; 13.0287° N, 77.5197° E</span>
+        <div class="station-name">Peenya Industrial Area, Bengaluru</div>
+        <div class="station-desc">Heavy engineering and manufacturing cluster with continuous point-source emissions and moderate elevation.</div>
+        <div class="station-tile-inspect">Inspect Station Intelligence &rarr;</div>
+      </div>
+
+      <div class="station-tile" onclick="openLandingCityModal(4)" title="Click to inspect Okhla Phase III telemetry & intelligence">
+        <span class="station-id">STATION DL-02 &bull; 28.5355° N, 77.2732° E</span>
+        <div class="station-name">Okhla Phase III, New Delhi</div>
+        <div class="station-desc">Dense commercial-manufacturing belt along South Delhi transit corridors with industrial flues.</div>
+        <div class="station-tile-inspect">Inspect Station Intelligence &rarr;</div>
+      </div>
+
+      <div class="station-tile" onclick="openLandingCityModal(5)" title="Click to inspect Manali Petrochemical Corridor telemetry & intelligence">
+        <span class="station-id">STATION TN-01 &bull; 13.1678° N, 80.2605° E</span>
+        <div class="station-name">Manali Petrochemical Corridor, Chennai</div>
+        <div class="station-desc">Refineries and chemical manufacturing belt with coastal air quality dynamics and VOC interactions.</div>
+        <div class="station-tile-inspect">Inspect Station Intelligence &rarr;</div>
+      </div>
+
+      <div class="station-tile" onclick="openLandingCityModal(6)" title="Click to inspect Salt Lake Sector V telemetry & intelligence">
+        <span class="station-id">STATION WB-01 &bull; 22.5804° N, 88.4378° E</span>
+        <div class="station-name">Salt Lake Sector V, Kolkata</div>
+        <div class="station-desc">High-density urban IT hub and suburban transit junction with high morning rush-hour flux.</div>
+        <div class="station-tile-inspect">Inspect Station Intelligence &rarr;</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Banner -->
+  <section class="cta-banner">
+    <h2>Access the National Digital Twin Workspace</h2>
+    <p>Sign in to configure IoT gateways, execute intervention scenarios, review active CPCB incident alerts, and download official compliance audits.</p>
+    <a href="/login" class="btn-primary" style="padding: 1rem 2.25rem; font-size: 0.95rem;">
+      <span>Authenticate & Enter Workspace</span>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <line x1="5" y1="12" x2="19" y2="12"></line>
+        <polyline points="12 5 19 12 12 19"></polyline>
+      </svg>
+    </a>
+  </section>
+
+  <!-- City Deep-Dive / Station Inspector Modal -->
+  <div class="landing-modal-overlay" id="landingCityModal" onclick="if(event.target === this) closeLandingCityModal()">
+    <div class="landing-modal-window">
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px;">
+        <div>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span id="lModalCode" style="font-family: var(--font-mono); font-size: 0.74rem; background: var(--bg-surface); padding: 2px 8px; border-radius: 3px; border: 1px solid var(--border-subtle); color: var(--accent-blue); font-weight: 600;">DL-01</span>
+            <h2 id="lModalTitle" style="font-size: 1.25rem; font-weight: 700; letter-spacing: -0.01em;">Anand Vihar ISBT, New Delhi</h2>
+          </div>
+          <div id="lModalSubtitle" style="font-size: 0.78rem; color: var(--text-secondary); margin-top: 4px;">
+            Interstate Transit Hub & Heavy Traffic Corridor &bull; Delhi NCR
+          </div>
+        </div>
+        <button onclick="closeLandingCityModal()" style="background: none; border: none; color: var(--text-secondary); font-size: 1.5rem; cursor: pointer; line-height: 1; padding: 4px 8px;">&times;</button>
+      </div>
+
+      <!-- Real-Time Metrics Row (4 Mini Cards) -->
+      <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 20px;">
+        <div style="background: var(--bg-surface-elevated); border: 1px solid var(--border-subtle); padding: 12px; border-radius: 4px;">
+          <div style="font-size: 0.68rem; text-transform: uppercase; color: var(--text-muted); font-weight: 600;">CO₂ Level</div>
+          <div id="lModalCo2" style="font-family: var(--font-mono); font-size: 1.25rem; font-weight: 700; color: var(--text-primary); margin-top: 2px;">-- ppm</div>
+          <div id="lModalSeverity" style="font-size: 0.68rem; font-weight: 600; text-transform: uppercase; margin-top: 2px; color: var(--status-normal);">Normal</div>
+        </div>
+        <div style="background: var(--bg-surface-elevated); border: 1px solid var(--border-subtle); padding: 12px; border-radius: 4px;">
+          <div style="font-size: 0.68rem; text-transform: uppercase; color: var(--text-muted); font-weight: 600;">Ambient Temp</div>
+          <div id="lModalTemp" style="font-family: var(--font-mono); font-size: 1.25rem; font-weight: 700; color: var(--text-primary); margin-top: 2px;">-- °C</div>
+          <div id="lModalHum" style="font-size: 0.68rem; color: var(--text-secondary); margin-top: 2px;">Humidity: --%</div>
+        </div>
+        <div style="background: var(--bg-surface-elevated); border: 1px solid var(--border-subtle); padding: 12px; border-radius: 4px;">
+          <div style="font-size: 0.68rem; text-transform: uppercase; color: var(--text-muted); font-weight: 600;">Air Quality Index</div>
+          <div id="lModalAqi" style="font-family: var(--font-mono); font-size: 1.25rem; font-weight: 700; color: var(--text-primary); margin-top: 2px;">AQI --</div>
+          <div id="lModalPm25" style="font-size: 0.68rem; color: var(--text-secondary); margin-top: 2px;">PM2.5: -- µg/m³</div>
+        </div>
+        <div style="background: var(--bg-surface-elevated); border: 1px solid var(--border-subtle); padding: 12px; border-radius: 4px;">
+          <div style="font-size: 0.68rem; text-transform: uppercase; color: var(--text-muted); font-weight: 600;">Population Density</div>
+          <div id="lModalPop" style="font-family: var(--font-mono); font-size: 1.15rem; font-weight: 700; color: var(--text-primary); margin-top: 2px;">-- / km²</div>
+          <div id="lModalElev" style="font-size: 0.68rem; color: var(--text-secondary); margin-top: 2px;">Elevation: --</div>
+        </div>
+      </div>
+
+      <!-- 24-Hour Historical Trend Canvas -->
+      <div style="background: var(--bg-surface-elevated); border: 1px solid var(--border-subtle); border-radius: 4px; padding: 14px; margin-bottom: 20px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+          <span style="font-size: 0.76rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em;">24-Hour Observed Atmospheric Trend</span>
+          <span style="font-family: var(--font-mono); font-size: 0.68rem; color: var(--text-secondary);">Station Telemetry Stream</span>
+        </div>
+        <div style="height: 160px; position: relative;">
+          <canvas id="lModalHistoryCanvas"></canvas>
+        </div>
+      </div>
+
+      <!-- Demographics & Physical Air Shed Characteristics -->
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 20px;">
+        <div style="background: var(--bg-surface-elevated); border: 1px solid var(--border-subtle); padding: 14px; border-radius: 4px;">
+          <div style="font-size: 0.76rem; font-weight: 600; text-transform: uppercase; margin-bottom: 8px; color: var(--accent-blue);">
+            Primary Atmospheric Vulnerability
+          </div>
+          <p id="lModalVulnerability" style="font-size: 0.78rem; color: var(--text-secondary); line-height: 1.5;">
+            --
+          </p>
+          <div style="margin-top: 10px; font-size: 0.72rem; color: var(--text-muted);">
+            Climate Regime: <span id="lModalClimate" style="color: var(--text-secondary);">--</span>
+          </div>
+        </div>
+
+        <div style="background: var(--bg-surface-elevated); border: 1px solid var(--border-subtle); padding: 14px; border-radius: 4px;">
+          <div style="font-size: 0.76rem; font-weight: 600; text-transform: uppercase; margin-bottom: 8px; color: var(--text-primary);">
+            Major Emission Drivers
+          </div>
+          <ul id="lModalDrivers" style="padding-left: 18px; font-size: 0.76rem; color: var(--text-secondary); line-height: 1.45;">
+          </ul>
+        </div>
+      </div>
+
+      <!-- Carbon Capture & Digital Twin Action Plan -->
+      <div style="background: var(--bg-surface-elevated); border: 1px solid var(--border-subtle); border-radius: 4px; padding: 14px; margin-bottom: 20px;">
+        <div style="font-size: 0.76rem; font-weight: 600; text-transform: uppercase; color: var(--accent-emerald); margin-bottom: 8px;">
+          Recommended Carbon Capture Intervention (Digital Twin Optimizer)
+        </div>
+        <div id="lModalDacAction" style="font-size: 0.85rem; font-weight: 600; color: var(--text-primary); margin-bottom: 6px;">
+          --
+        </div>
+        <div style="display: flex; gap: 16px; font-size: 0.76rem; color: var(--text-secondary); margin-top: 8px;">
+          <div>Mitigation Potential: <span id="lModalMitigation" style="font-family: var(--font-mono); color: var(--status-normal); font-weight: 600;">--</span></div>
+          <div>Capital Tier: <span id="lModalCapex" style="font-family: var(--font-mono); color: var(--text-primary);">--</span></div>
+          <div>Priority Level: <span id="lModalPriority" style="font-family: var(--font-mono); color: var(--status-warning);">--</span></div>
+        </div>
+      </div>
+
+      <!-- Footer Actions -->
+      <div style="display: flex; justify-content: flex-end; gap: 10px;">
+        <button class="btn-secondary" onclick="closeLandingCityModal()" style="padding: 0.6rem 1.25rem; font-size: 0.82rem;">Close</button>
+        <a href="/login" class="btn-primary" style="padding: 0.6rem 1.25rem; font-size: 0.82rem;">Authenticate & Enter Twin Workspace &rarr;</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    <div>Central Pollution Control Board (CPCB) Standard Compliance &bull; DTCM Platform v2.4</div>
+    <div class="footer-links">
+      <a href="/login">Sign In</a>
+      <a href="/dashboard">Dashboard</a>
+      <a href="/api/predict/metrics">Model Metrics API</a>
+    </div>
+  </footer>
+
+  <script>
+    // Detailed City Intelligence Dataset
+    const LANDING_CITY_INTELLIGENCE = {
+      1: {
+        code: "DL-01",
+        stationName: "Anand Vihar ISBT",
+        city: "New Delhi",
+        state: "Delhi NCR",
+        lat: 28.6469,
+        lon: 77.3160,
+        elevation: "216 m ASL",
+        populationDensity: "16,400 / km²",
+        zoneCategory: "Interstate Transit Corridor & Heavy Multi-Modal Hub",
+        climateRegime: "Semi-Arid Continental with Winter Inversion",
+        vulnerability: "Nocturnal surface radiation inversion depresses planetary boundary layer below 150m AGL between November and February. Heavy vehicular idling from interstate diesel buses combined with regional biomass aerosol prevents atmospheric dispersion, yielding critical localized CO₂ entrapment.",
+        emissionDrivers: [
+          "2,800+ interstate diesel buses idling daily at Anand Vihar terminal",
+          "Continuous heavy freight corridor along Swami Vivekananda Marg & NH-24",
+          "High localized domestic combustion from surrounding dense residential settlements",
+          "Low wind speeds (<1.2 m/s) during winter stagnant meteorological regimes"
+        ],
+        dacAction: "Dual Modular Solid-Sorbent Direct Air Capture (DAC) Scrubbers (800 t/year capacity) + Dense Miyawaki Vegetative Buffer along transit perimeter.",
+        dacMitigation: "-38 to -45 ppm",
+        capexTier: "Tier 3 ($$$)",
+        priorityRank: "Priority 1 (Score: 98.4)"
+      },
+      2: {
+        code: "MH-01",
+        stationName: "Bandra Kurla Complex (BKC)",
+        city: "Mumbai",
+        state: "Maharashtra",
+        lat: 19.0657,
+        lon: 72.8687,
+        elevation: "8 m ASL",
+        populationDensity: "12,800 / km²",
+        zoneCategory: "Central Commercial Financial District",
+        climateRegime: "Tropical Coastal Maritime with High Humidity",
+        vulnerability: "Diurnal sea-breeze to land-breeze reversal induces midday stagnation pockets between mid-rise corporate towers. High ambient relative humidity (>75%) accelerates secondary aerosol formation, retarding convective vertical mixing.",
+        emissionDrivers: [
+          "Arterial commuter congestion with 120,000+ personal vehicles during peak hours",
+          "Continuous multi-megawatt HVAC heat rejection and localized exhaust recirculation",
+          "Ongoing metro and commercial tower infrastructure construction emissions",
+          "Low elevation proximity to the tidal Mithi River atmospheric boundary basin"
+        ],
+        dacAction: "Rooftop Micro-Algae Photobioreactors (PBR) & Building-Integrated Direct Air Sorbent Filter Units.",
+        dacMitigation: "-22 to -28 ppm",
+        capexTier: "Tier 2 ($$)",
+        priorityRank: "Priority 2 (Score: 88.2)"
+      },
+      3: {
+        code: "KA-01",
+        stationName: "Peenya Industrial Area",
+        city: "Bengaluru",
+        state: "Karnataka",
+        lat: 13.0287,
+        lon: 77.5197,
+        elevation: "920 m ASL",
+        populationDensity: "7,200 / km²",
+        zoneCategory: "Heavy Manufacturing & Precision Engineering Cluster",
+        climateRegime: "Tropical Savanna with Moderate Plateau Elevation",
+        vulnerability: "Sub-basin valley topography causes nocturnal thermal layering, trapping metallurgical smelting and machining emissions within localized shallow surface boundaries.",
+        emissionDrivers: [
+          "2,500+ active small/medium industrial units, metallurgical furnaces, and boilers",
+          "Heavy logistics corridor along Tumkur National Highway (NH-48)",
+          "Captive diesel generator sets operating during industrial grid peak periods",
+          "Elevated fugitive volatile organic compounds and point-source combustion"
+        ],
+        dacAction: "Point-Source Chemical Amine Flue Gas Capture Units & Perimeter Industrial Miyawaki Buffer Forest.",
+        dacMitigation: "-32 to -40 ppm",
+        capexTier: "Tier 3 ($$$)",
+        priorityRank: "Priority 3 (Score: 84.7)"
+      },
+      4: {
+        code: "DL-02",
+        stationName: "Okhla Phase III",
+        city: "New Delhi",
+        state: "Delhi NCR",
+        lat: 28.5355,
+        lon: 77.2732,
+        elevation: "221 m ASL",
+        populationDensity: "14,200 / km²",
+        zoneCategory: "Mixed Industrial Belt & Transit Corridor",
+        climateRegime: "Semi-Arid Continental with Yamuna River Moisture Advection",
+        vulnerability: "Proximity to the Yamuna riverbed creates nocturnal radiation fog banks that combine with industrial flue gases and freight exhaust to form persistent winter smog.",
+        emissionDrivers: [
+          "Dense cluster of industrial manufacturing, packaging, and waste-to-energy plants",
+          "Inland container freight depot (ICD Tughlakabad) heavy truck corridors",
+          "Outer Ring Road arterial traffic stagnation during morning/evening rush hours",
+          "High industrial stack emissions and fabrication facility heat exhausts"
+        ],
+        dacAction: "Solid-Sorbent Temperature-Swing Adsorption (TSA) DAC Pods (500 t/year capacity).",
+        dacMitigation: "-26 to -34 ppm",
+        capexTier: "Tier 2 ($$)",
+        priorityRank: "Priority 4 (Score: 81.3)"
+      },
+      5: {
+        code: "TN-01",
+        stationName: "Manali Petrochemical Corridor",
+        city: "Chennai",
+        state: "Tamil Nadu",
+        lat: 13.1678,
+        lon: 80.2605,
+        elevation: "6 m ASL",
+        populationDensity: "5,400 / km²",
+        zoneCategory: "Petrochemical, Refinery & Fertilizer Belt",
+        climateRegime: "Tropical Coastal Wet & Dry with Bay of Bengal Wind Forcing",
+        vulnerability: "Nocturnal land breezes push concentrated industrial refinery plumes inland; high marine sulfur-salt aerosols interact with hydrocarbon emissions to create heavy photochemical air masses.",
+        emissionDrivers: [
+          "Large-scale crude oil refineries, fertilizer synthesis, and chemical manufacturing",
+          "Industrial flare stacks and continuous catalytic cracking process units",
+          "Heavy petroleum tanker logistics and commercial maritime port traffic",
+          "Continuous high baseline point-source CO₂ and volatile hydrocarbon discharge"
+        ],
+        dacAction: "Industrial Chemical Amine Absorption Towers & Coastal Saline Micro-Algae Carbon Sinks.",
+        dacMitigation: "-35 to -48 ppm",
+        capexTier: "Tier 3 ($$$)",
+        priorityRank: "Priority 5 (Score: 79.5)"
+      },
+      6: {
+        code: "WB-01",
+        stationName: "Salt Lake Sector V",
+        city: "Kolkata",
+        state: "West Bengal",
+        lat: 22.5804,
+        lon: 88.4378,
+        elevation: "11 m ASL",
+        populationDensity: "10,500 / km²",
+        zoneCategory: "Urban IT Corridor & Eastern Metropolitan Bypass",
+        climateRegime: "Tropical Wet-and-Dry with High Humidity Delta",
+        vulnerability: "Proximity to the East Kolkata Wetlands generates high nocturnal ground humidity, creating calm wind stagnation layers where vehicular emissions and HVAC plumes accumulate without horizontal dispersion.",
+        emissionDrivers: [
+          "Heavy IT commuter vehicular influx and feeder bus idling",
+          "Commercial tower cooling towers and diesel generator exhaust emissions",
+          "Eastern Metropolitan Bypass transit freight and mixed vehicle congestion",
+          "Diffuse municipal and domestic combustion in adjacent peri-urban sectors"
+        ],
+        dacAction: "Urban Miyawaki Forestry Buffers + Modular Building-Mounted Solid-Sorbent Direct Air Capture Units.",
+        dacMitigation: "-18 to -24 ppm",
+        capexTier: "Tier 1 ($)",
+        priorityRank: "Priority 6 (Score: 73.1)"
+      }
+    };
+
+    let landingChart = null;
+
+    // Open City Detail Modal
+    async function openLandingCityModal(sensorId) {
+      const sId = parseInt(sensorId) || 1;
+      const meta = LANDING_CITY_INTELLIGENCE[sId] || LANDING_CITY_INTELLIGENCE[1];
+
+      // Populate static intelligence
+      document.getElementById('lModalCode').innerText = meta.code;
+      document.getElementById('lModalTitle').innerText = `${meta.stationName}, ${meta.city}`;
+      document.getElementById('lModalSubtitle').innerText = `${meta.zoneCategory} • ${meta.state} (${meta.lat.toFixed(4)}°N, ${meta.lon.toFixed(4)}°E)`;
+      document.getElementById('lModalPop').innerText = meta.populationDensity;
+      document.getElementById('lModalElev').innerText = `Elevation: ${meta.elevation}`;
+      document.getElementById('lModalVulnerability').innerText = meta.vulnerability;
+      document.getElementById('lModalClimate').innerText = meta.climateRegime;
+
+      const driversUl = document.getElementById('lModalDrivers');
+      driversUl.innerHTML = '';
+      meta.emissionDrivers.forEach(src => {
+        const li = document.createElement('li');
+        li.style.marginBottom = '4px';
+        li.innerText = src;
+        driversUl.appendChild(li);
+      });
+
+      document.getElementById('lModalDacAction').innerText = meta.dacAction;
+      document.getElementById('lModalMitigation').innerText = meta.dacMitigation;
+      document.getElementById('lModalCapex').innerText = meta.capexTier;
+      document.getElementById('lModalPriority').innerText = meta.priorityRank;
+
+      // Default baseline values
+      let live = {
+        co2: 435.0 + (sId * 8.5),
+        temperature: 27.5 + (sId % 3),
+        humidity: 62 - (sId * 2),
+        aqi: 125 + (sId * 12),
+        pm25: 48.0 + (sId * 5)
+      };
+
+      // Try fetching live data from platform API
+      try {
+        const res = await fetch('/api/data/latest');
+        if (res.ok) {
+          const latestList = await res.json();
+          const match = latestList.find(item => item.sensor_id === sId);
+          if (match) live = match;
+        }
+      } catch (e) {
+        // Fallback to baseline
+      }
+
+      // Populate live metric cards
+      document.getElementById('lModalCo2').innerText = `${live.co2.toFixed(1)} ppm`;
+      const sevEl = document.getElementById('lModalSeverity');
+      if (live.co2 > 500) {
+        sevEl.innerText = 'Critical Inversion Breach';
+        sevEl.style.color = 'var(--status-critical)';
+      } else if (live.co2 > 450) {
+        sevEl.innerText = 'Elevated Threshold';
+        sevEl.style.color = 'var(--status-warning)';
+      } else {
+        sevEl.innerText = 'Normal Concentration';
+        sevEl.style.color = 'var(--status-normal)';
+      }
+
+      document.getElementById('lModalTemp').innerText = `${live.temperature.toFixed(1)} °C`;
+      document.getElementById('lModalHum').innerText = `Humidity: ${live.humidity.toFixed(0)}%`;
+      document.getElementById('lModalAqi').innerText = `AQI ${live.aqi.toFixed(0)}`;
+      document.getElementById('lModalPm25').innerText = `PM2.5: ${live.pm25.toFixed(1)} µg/m³`;
+
+      // Open Modal
+      document.getElementById('landingCityModal').classList.add('open');
+
+      // Load 24h Historical Trend Chart
+      loadLandingCityChart(sId, live.co2);
+    }
+
+    function closeLandingCityModal() {
+      document.getElementById('landingCityModal').classList.remove('open');
+      if (landingChart) {
+        landingChart.destroy();
+        landingChart = null;
+      }
+    }
+
+    // Keyboard ESC to close
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeLandingCityModal();
+    });
+
+    async function loadLandingCityChart(sensorId, fallbackCo2) {
+      const canvas = document.getElementById('lModalHistoryCanvas');
+      if (!canvas) return;
+
+      if (landingChart) {
+        landingChart.destroy();
+        landingChart = null;
+      }
+
+      let labels = [];
+      let co2Vals = [];
+
+      try {
+        const res = await fetch(`/api/data/history?sensor_id=${sensorId}&hours=24`);
+        if (res.ok) {
+          const historyData = await res.json();
+          if (Array.isArray(historyData) && historyData.length > 0) {
+            labels = historyData.map(d => {
+              const rawTs = d.timestamp || d.Timestamp;
+              const date = rawTs ? new Date(rawTs) : new Date();
+              const h = isNaN(date.getHours()) ? 0 : date.getHours();
+              return `${String(h).padStart(2, '0')}:00`;
+            });
+            co2Vals = historyData.map(d => {
+              const val = d.co2 ?? d.CO2Level;
+              return val !== undefined && val !== null && !isNaN(val) ? Number(val) : null;
+            }).filter(v => v !== null);
           }
-        </script>
-      </div>
-    </div>
+        }
+      } catch (e) {
+        // Fallback if network blocked
+      }
 
-    <!-- Medium Card 2 -->
-    <div class="card card-medium" style="background: var(--text-main); color: var(--bg-base);">
-      <div>
-        <h3 style="color: var(--bg-base);">API Access</h3>
-        <p style="color: rgba(0,0,0,0.6);">Direct integration with municipal traffic and ventilation systems.</p>
-      </div>
-      <div style="margin-top: auto; font-family: monospace; font-size: 0.8rem; background: rgba(0,0,0,0.05); padding: 1rem; border-radius: 8px;">
-        GET /api/v1/telemetry<br>
-        status: 200 OK<br>
-        latency: 12ms
-      </div>
-    </div>
+      // Synthetic diurnal baseline if API returns empty
+      if (co2Vals.length === 0) {
+        labels = [];
+        const currentHour = new Date().getHours();
+        for (let i = 24; i >= 0; i--) {
+          const h = (currentHour - i + 24) % 24;
+          labels.push(`${String(h).padStart(2, '0')}:00`);
+          const peak = Math.sin((h - 4) / 12 * Math.PI) * 25;
+          co2Vals.push(Number((fallbackCo2 + peak + (Math.sin(h * 2) * 5)).toFixed(1)));
+        }
+      }
 
-    <!-- Wide Card -->
-    <div class="card card-wide" style="flex-direction: row; align-items: center;">
-      <div style="flex: 1;">
-        <h3>Automated Response</h3>
-        <p>Trigger immediate ventilation protocols and traffic routing adjustments automatically.</p>
-      </div>
-      <div class="badge-container">
-        <div class="badge active">Ventilation: Active</div>
-        <div class="badge">Traffic: Standard</div>
-      </div>
-    </div>
+      const minVal = Math.min(...co2Vals);
+      const maxVal = Math.max(...co2Vals);
 
-  </section>
+      const ctx = canvas.getContext('2d');
+      landingChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'CO₂ Concentration (ppm)',
+            data: co2Vals,
+            borderColor: '#ffffff',
+            backgroundColor: 'rgba(255, 255, 255, 0.05)',
+            borderWidth: 1.5,
+            pointRadius: 1,
+            pointHoverRadius: 4,
+            pointBackgroundColor: '#ffffff',
+            fill: true,
+            tension: 0.3
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              mode: 'index',
+              intersect: false,
+              backgroundColor: '#111115',
+              titleColor: '#a1a1aa',
+              bodyColor: '#ffffff',
+              borderColor: '#27272e',
+              borderWidth: 1,
+              callbacks: {
+                label: (ctx) => `CO₂: ${ctx.parsed.y.toFixed(1)} ppm`
+              }
+            }
+          },
+          scales: {
+            x: {
+              grid: { display: false },
+              ticks: { color: '#71717a', font: { family: 'JetBrains Mono', size: 9 }, maxTicksLimit: 8 }
+            },
+            y: {
+              grid: { color: '#1c1c21' },
+              ticks: { color: '#71717a', font: { family: 'JetBrains Mono', size: 9 } },
+              suggestedMin: Math.floor(minVal - 10),
+              suggestedMax: Math.ceil(maxVal + 10)
+            }
+          }
+        }
+      });
+    }
 
+    // Live update metrics if API is online
+    async function loadLiveMetrics() {
+      try {
+        const res = await fetch('/api/predict/metrics');
+        if (res.ok) {
+          const data = await res.json();
+          if (data.r2_score) {
+            document.getElementById('kpiR2').innerText = `R² ${Number(data.r2_score).toFixed(3)}`;
+          }
+          if (data.mae) {
+            document.getElementById('kpiMae').innerText = `${Number(data.mae).toFixed(2)} ppm`;
+          }
+        }
+      } catch (e) {
+        // Fallback already rendered in HTML
+      }
+    }
+    loadLiveMetrics();
+  </script>
 </body>
 </html>

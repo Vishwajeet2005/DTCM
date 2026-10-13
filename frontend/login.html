@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DTCM | Secure Gateway Authentication</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-base: #000000;
+      --bg-surface: #09090b;
+      --bg-surface-elevated: #111115;
+      --border-subtle: #1c1c21;
+      --border-strong: #27272e;
+      --text-primary: #ffffff;
+      --text-secondary: #a1a1aa;
+      --text-muted: #71717a;
+      --accent-blue: #3b82f6;
+      --accent-blue-hover: #2563eb;
+      --status-normal: #22c55e;
+      --status-critical: #ef4444;
+      --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background-color: var(--bg-base);
+      color: var(--text-primary);
+      font-family: var(--font-sans);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    header {
+      padding: 1.5rem 3rem;
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(0, 0, 0, 0.95);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .brand-logo {
+      width: 28px;
+      height: 28px;
+      background: #ffffff;
+      color: #000000;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-mono);
+      font-weight: 700;
+      font-size: 0.85rem;
+    }
+
+    .brand-title {
+      font-size: 0.95rem;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+    }
+
+    .brand-badge {
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      background: var(--bg-surface-elevated);
+      color: var(--text-muted);
+      padding: 2px 8px;
+      border-radius: 3px;
+      border: 1px solid var(--border-subtle);
+    }
+
+    .nav-back {
+      font-size: 0.82rem;
+      color: var(--text-secondary);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: color 0.15s;
+    }
+
+    .nav-back:hover {
+      color: var(--text-primary);
+    }
+
+    main {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 3rem 1.5rem;
+    }
+
+    .auth-card {
+      width: 100%;
+      max-width: 460px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      padding: 2.25rem;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.8);
+    }
+
+    .card-header {
+      margin-bottom: 1.75rem;
+    }
+
+    .card-header h1 {
+      font-size: 1.35rem;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      margin-bottom: 0.35rem;
+    }
+
+    .card-header p {
+      font-size: 0.82rem;
+      color: var(--text-secondary);
+      line-height: 1.4;
+    }
+
+    .tabs {
+      display: flex;
+      border-bottom: 1px solid var(--border-subtle);
+      margin-bottom: 1.5rem;
+      gap: 1.5rem;
+    }
+
+    .tab-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-family: var(--font-sans);
+      font-size: 0.82rem;
+      font-weight: 500;
+      padding: 0.5rem 0;
+      cursor: pointer;
+      position: relative;
+      transition: color 0.15s;
+    }
+
+    .tab-btn.active {
+      color: var(--text-primary);
+    }
+
+    .tab-btn.active::after {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: var(--accent-blue);
+    }
+
+    .form-group {
+      margin-bottom: 1.15rem;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 0.76rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+      margin-bottom: 0.35rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .form-input {
+      width: 100%;
+      background: var(--bg-surface-elevated);
+      border: 1px solid var(--border-subtle);
+      border-radius: 4px;
+      padding: 0.65rem 0.85rem;
+      color: var(--text-primary);
+      font-family: var(--font-sans);
+      font-size: 0.86rem;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+
+    .form-input:focus {
+      border-color: var(--border-strong);
+    }
+
+    .form-select {
+      width: 100%;
+      background: var(--bg-surface-elevated);
+      border: 1px solid var(--border-subtle);
+      border-radius: 4px;
+      padding: 0.65rem 0.85rem;
+      color: var(--text-primary);
+      font-family: var(--font-sans);
+      font-size: 0.86rem;
+      outline: none;
+      cursor: pointer;
+    }
+
+    .btn-submit {
+      width: 100%;
+      background: var(--text-primary);
+      color: #000000;
+      border: none;
+      border-radius: 4px;
+      padding: 0.75rem;
+      font-size: 0.85rem;
+      font-weight: 600;
+      font-family: var(--font-sans);
+      cursor: pointer;
+      transition: opacity 0.15s;
+      margin-top: 0.5rem;
+    }
+
+    .btn-submit:hover {
+      opacity: 0.9;
+    }
+
+    .btn-submit:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    /* Role Quick Presets */
+    .presets-container {
+      margin-top: 1.75rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--border-subtle);
+    }
+
+    .presets-label {
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      margin-bottom: 0.75rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .presets-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .preset-btn {
+      background: var(--bg-surface-elevated);
+      border: 1px solid var(--border-subtle);
+      border-radius: 4px;
+      padding: 8px 10px;
+      text-align: left;
+      cursor: pointer;
+      transition: all 0.15s;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .preset-btn:hover {
+      border-color: var(--border-strong);
+      background: #18181f;
+    }
+
+    .preset-role {
+      font-size: 0.74rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .preset-email {
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      color: var(--text-muted);
+    }
+
+    /* Alert / Feedback message */
+    .status-msg {
+      margin-top: 1rem;
+      padding: 8px 12px;
+      border-radius: 4px;
+      font-size: 0.78rem;
+      display: none;
+      line-height: 1.4;
+    }
+
+    .status-msg.error {
+      display: block;
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      color: #fca5a5;
+    }
+
+    .status-msg.success {
+      display: block;
+      background: rgba(34, 197, 94, 0.1);
+      border: 1px solid rgba(34, 197, 94, 0.3);
+      color: #86efac;
+    }
+
+    footer {
+      padding: 1.5rem 3rem;
+      border-top: 1px solid var(--border-subtle);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.72rem;
+      color: var(--text-muted);
+    }
+
+    .meta-tag {
+      font-family: var(--font-mono);
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <a href="/" class="brand">
+      <div class="brand-logo">D</div>
+      <div>
+        <div class="brand-title">DTCM Gateway</div>
+      </div>
+      <span class="brand-badge">NAAQS / CPCB Secure Auth</span>
+    </a>
+    <a href="/" class="nav-back">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polyline points="15 18 9 12 15 6"></polyline>
+      </svg>
+      Return to Landing
+    </a>
+  </header>
+
+  <main>
+    <div class="auth-card">
+      <div class="card-header">
+        <h1 id="authTitle">Sign In to DTCM</h1>
+        <p id="authSubtitle">Enter your credentials to access the Indian Metropolitan Telemetry Grid & Digital Twin sandbox.</p>
+      </div>
+
+      <div class="tabs">
+        <button class="tab-btn active" id="tabLogin" onclick="switchTab('login')">Sign In</button>
+        <button class="tab-btn" id="tabRegister" onclick="switchTab('register')">Register New Account</button>
+      </div>
+
+      <form id="authForm" onsubmit="handleAuthSubmit(event)">
+        <div class="form-group" id="groupName" style="display: none;">
+          <label class="form-label" for="inputName">Full Name</label>
+          <input type="text" id="inputName" class="form-input" placeholder="e.g. Dr. Rajesh Sharma">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="inputEmail">Email Address</label>
+          <input type="email" id="inputEmail" class="form-input" placeholder="name@domain.gov.in" required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="inputPassword">Password</label>
+          <input type="password" id="inputPassword" class="form-input" placeholder="••••••••" required>
+        </div>
+
+        <div class="form-group" id="groupRole" style="display: none;">
+          <label class="form-label" for="inputRole">Designated Role</label>
+          <select id="inputRole" class="form-select">
+            <option value="environmental_authority">Environmental Authority (CPCB / SPCB)</option>
+            <option value="researcher">Scientific Researcher / Academic</option>
+            <option value="general">Urban Citizen / Public Observer</option>
+            <option value="administrator">System Administrator</option>
+          </select>
+        </div>
+
+        <button type="submit" id="btnSubmit" class="btn-submit">Sign In to Dashboard</button>
+        <div id="statusMsg" class="status-msg"></div>
+      </form>
+
+      <div class="presets-container" id="presetsArea">
+        <div class="presets-label">
+          <span>Quick Role Presets</span>
+          <span>1-Click Sign In</span>
+        </div>
+        <div class="presets-grid">
+          <button type="button" class="preset-btn" onclick="applyPreset('admin@dtcm.com', 'admin123', 'Administrator')">
+            <span class="preset-role">Administrator</span>
+            <span class="preset-email">admin@dtcm.com</span>
+          </button>
+          <button type="button" class="preset-btn" onclick="applyPreset('authority@dtcm.com', 'authority123', 'CPCB Authority')">
+            <span class="preset-role">Authority</span>
+            <span class="preset-email">authority@dtcm.com</span>
+          </button>
+          <button type="button" class="preset-btn" onclick="applyPreset('researcher@dtcm.com', 'researcher123', 'Researcher')">
+            <span class="preset-role">Researcher</span>
+            <span class="preset-email">researcher@dtcm.com</span>
+          </button>
+          <button type="button" class="preset-btn" onclick="applyPreset('citizen@dtcm.com', 'citizen123', 'Citizen')">
+            <span class="preset-role">Citizen</span>
+            <span class="preset-email">citizen@dtcm.com</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <div>Central Pollution Control Board (CPCB) Standard Compliance &bull; DTCM v2.4</div>
+    <div class="meta-tag">IST Synchronized &bull; SHA-256 JWT Token Gate</div>
+  </footer>
+
+  <script>
+    let currentMode = 'login';
+
+    function switchTab(mode) {
+      currentMode = mode;
+      const tabLogin = document.getElementById('tabLogin');
+      const tabRegister = document.getElementById('tabRegister');
+      const groupName = document.getElementById('groupName');
+      const groupRole = document.getElementById('groupRole');
+      const authTitle = document.getElementById('authTitle');
+      const authSubtitle = document.getElementById('authSubtitle');
+      const btnSubmit = document.getElementById('btnSubmit');
+      const presetsArea = document.getElementById('presetsArea');
+      const statusMsg = document.getElementById('statusMsg');
+
+      statusMsg.className = 'status-msg';
+      statusMsg.innerText = '';
+
+      if (mode === 'login') {
+        tabLogin.classList.add('active');
+        tabRegister.classList.remove('active');
+        groupName.style.display = 'none';
+        groupRole.style.display = 'none';
+        authTitle.innerText = 'Sign In to DTCM';
+        authSubtitle.innerText = 'Enter your credentials to access the Indian Metropolitan Telemetry Grid & Digital Twin sandbox.';
+        btnSubmit.innerText = 'Sign In to Dashboard';
+        presetsArea.style.display = 'block';
+      } else {
+        tabRegister.classList.add('active');
+        tabLogin.classList.remove('active');
+        groupName.style.display = 'block';
+        groupRole.style.display = 'block';
+        authTitle.innerText = 'Create DTCM Account';
+        authSubtitle.innerText = 'Register for certified telemetry access and scenario simulation permissions.';
+        btnSubmit.innerText = 'Complete Registration';
+        presetsArea.style.display = 'none';
+      }
+    }
+
+    async function applyPreset(email, password, roleLabel) {
+      document.getElementById('inputEmail').value = email;
+      document.getElementById('inputPassword').value = password;
+      await executeAuth(email, password, null, null);
+    }
+
+    async function handleAuthSubmit(e) {
+      e.preventDefault();
+      const email = document.getElementById('inputEmail').value.trim();
+      const password = document.getElementById('inputPassword').value;
+      const name = document.getElementById('inputName').value.trim();
+      const role = document.getElementById('inputRole').value;
+
+      await executeAuth(email, password, name, role);
+    }
+
+    async function executeAuth(email, password, name, role) {
+      const btnSubmit = document.getElementById('btnSubmit');
+      const statusMsg = document.getElementById('statusMsg');
+
+      btnSubmit.disabled = true;
+      btnSubmit.innerText = currentMode === 'login' ? 'Authenticating...' : 'Registering...';
+      statusMsg.className = 'status-msg';
+      statusMsg.innerText = '';
+
+      try {
+        if (currentMode === 'login') {
+          const res = await fetch('/api/auth/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password })
+          });
+
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.msg || data.error || 'Authentication rejected');
+
+          // Store token and user info
+          localStorage.setItem('dtcm_token', data.access_token);
+          localStorage.setItem('dtcm_user', JSON.stringify({
+            id: data.user_id,
+            email: data.email,
+            name: data.name || email.split('@')[0],
+            role: data.role
+          }));
+
+          statusMsg.className = 'status-msg success';
+          statusMsg.innerText = `Session verified for ${data.role}. Forwarding to Telemetry Grid...`;
+
+          setTimeout(() => {
+            window.location.href = '/dashboard';
+          }, 600);
+
+        } else {
+          // Register
+          const res = await fetch('/api/auth/register', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name, email, password, role })
+          });
+
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.msg || data.error || 'Registration failed');
+
+          statusMsg.className = 'status-msg success';
+          statusMsg.innerText = 'Account successfully registered. Please sign in.';
+          setTimeout(() => {
+            switchTab('login');
+            document.getElementById('inputEmail').value = email;
+            document.getElementById('inputPassword').value = '';
+          }, 1000);
+        }
+      } catch (err) {
+        statusMsg.className = 'status-msg error';
+        statusMsg.innerText = err.message;
+        btnSubmit.disabled = false;
+        btnSubmit.innerText = currentMode === 'login' ? 'Sign In to Dashboard' : 'Complete Registration';
+      }
+    }
+  </script>
+</body>
+</html>

@@ -1,407 +1,674 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>DTCM | Digital Twin Platform</title>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DTCM — Digital Twin CO₂ Monitor | National Telemetry Infrastructure</title>
+    
+    <!-- Enterprise Pitch Black Stylesheet -->
+    <link rel="stylesheet" href="css/style.css">
+    
+    <!-- Leaflet GIS Map CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    
+    <!-- External Libraries: Chart.js & Leaflet -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 </head>
 <body>
 
-  <!-- ==================== LANDING PAGE ==================== -->
-  <div id="page-landing" class="page">
-    <nav class="landing-nav">
-      <div class="brand">DTCM.</div>
-      <button id="btn-goto-login" class="btn-primary">Sign In</button>
-    </nav>
-    <div class="landing-hero">
-      <div class="hero-content">
-        <h1>Breathe Intelligence.</h1>
-        <p>The definitive digital twin platform for urban CO₂ monitoring, predictive analytics, and automated metropolitan response.</p>
-        <button id="btn-hero-login" class="btn-primary" style="padding: 1rem 2rem; font-size: 1rem; margin-top: 2rem;">Access Platform</button>
-      </div>
-      
-      <!-- Abstract landing graphics -->
-      <div class="bento-grid">
-        <div class="bento-card bento-large">
-          <h3>Predictive ML Engine</h3>
-          <p>Forecast CO₂ saturation points hours before they peak.</p>
-          <div class="chart-abstract">
-            <div class="bar h-30"></div><div class="bar h-60"></div><div class="bar h-40"></div><div class="bar h-90"></div><div class="bar h-50"></div><div class="bar h-80"></div>
-          </div>
-        </div>
-        <div class="bento-card bento-tall">
-          <h3>Live Telemetry</h3>
-          <p>Current urban average</p>
-          <div class="metric-huge">415 <span style="font-size: 1.5rem; color: #666;">ppm</span></div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ==================== AUTHENTICATION ==================== -->
-  <div id="page-login" class="page hidden">
-    <div class="auth-wrapper">
-      <div class="auth-card">
-        <div class="brand" style="margin-bottom: 2rem;">DTCM.</div>
-        <h2>Sign in to platform</h2>
-        <form id="login-form">
-          <input type="email" id="login-email" placeholder="Email address" required>
-          <input type="password" id="login-password" placeholder="Password" required>
-          <div id="login-error" class="error-msg hidden"></div>
-          <button type="submit" id="btn-login" class="btn-primary full-width" style="margin-top: 1rem;">Sign In</button>
-        </form>
-        <div class="auth-switch">
-          <a href="#" id="link-to-register">Create a new account</a>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div id="page-register" class="page hidden">
-    <div class="auth-wrapper">
-      <div class="auth-card">
-        <div class="brand" style="margin-bottom: 2rem;">DTCM.</div>
-        <h2>Create Account</h2>
-        <form id="register-form">
-          <input type="text" id="register-name" placeholder="Full Name" required>
-          <input type="email" id="register-email" placeholder="Email address" required>
-          <input type="password" id="register-password" placeholder="Password (min 8 chars)" required>
-          <div id="register-error" class="error-msg hidden"></div>
-          <button type="submit" id="btn-register" class="btn-primary full-width" style="margin-top: 1rem;">Register</button>
-        </form>
-        <div class="auth-switch">
-          <a href="#" id="link-to-login">Already have an account? Sign in</a>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ==================== APP DASHBOARD ==================== -->
-  <div id="app-main" class="app-shell hidden">
-    
+<div class="app-container">
     <!-- Sidebar Navigation -->
-    <aside class="app-sidebar">
-      <div class="sidebar-header">
-        <div class="brand">DTCM.</div>
-      </div>
-      <nav class="sidebar-nav">
-        <div class="nav-section">MAIN</div>
-        <a href="#" class="nav-link active" data-page="dashboard">Overview</a>
-        <a href="#" class="nav-link" data-page="history">History</a>
-        <a href="#" class="nav-link" data-page="predictions">Predictions</a>
-        <div class="nav-section" style="margin-top: 2rem;">SYSTEM</div>
-        <a href="#" class="nav-link" data-page="twin">Digital Twin</a>
-        <a href="#" class="nav-link" data-page="heatmap">Heatmap</a>
-        <a href="#" class="nav-link" data-page="alerts">Alerts</a>
-      </nav>
-      
-      <div class="sidebar-footer">
-        <div class="user-info">
-          <div class="user-details">
-            <span id="user-display" style="font-weight: 500;">Admin</span>
-          </div>
+    <aside class="sidebar">
+        <div class="brand-section">
+            <span class="brand-tag">DTCM</span>
+            <div>
+                <span class="brand-title">Digital Twin CO₂</span>
+                <span class="brand-sub">India Urban Grid Telemetry</span>
+            </div>
         </div>
-        <button id="btn-logout" class="btn-icon">Logout</button>
-      </div>
+
+        <ul class="nav-links" id="sidebarNav">
+            <li class="active" data-page="overview">
+                <a href="javascript:void(0)" onclick="navigateTo('overview')">
+                    <svg class="nav-icon-svg" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+                    <span>Live Telemetry</span>
+                </a>
+            </li>
+            <li data-page="gis-map">
+                <a href="javascript:void(0)" onclick="navigateTo('gis-map')">
+                    <svg class="nav-icon-svg" viewBox="0 0 24 24"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon><line x1="8" y1="2" x2="8" y2="18"></line><line x1="16" y1="6" x2="16" y2="22"></line></svg>
+                    <span>Geospatial Sensor Grid</span>
+                </a>
+            </li>
+            <li data-page="predictions">
+                <a href="javascript:void(0)" onclick="navigateTo('predictions')">
+                    <svg class="nav-icon-svg" viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+                    <span>Forecasting Engine</span>
+                </a>
+            </li>
+            <li data-page="sandbox">
+                <a href="javascript:void(0)" onclick="navigateTo('sandbox')">
+                    <svg class="nav-icon-svg" viewBox="0 0 24 24"><line x1="4" y1="21" x2="4" y2="14"></line><line x1="4" y1="10" x2="4" y2="3"></line><line x1="12" y1="21" x2="12" y2="12"></line><line x1="12" y1="8" x2="12" y2="3"></line><line x1="20" y1="21" x2="20" y2="16"></line><line x1="20" y1="12" x2="20" y2="3"></line><line x1="1" y1="14" x2="7" y2="14"></line><line x1="9" y1="8" x2="15" y2="8"></line><line x1="17" y1="16" x2="23" y2="16"></line></svg>
+                    <span>Scenario Modeling</span>
+                </a>
+            </li>
+            <li data-page="optimizer">
+                <a href="javascript:void(0)" onclick="navigateTo('optimizer')">
+                    <svg class="nav-icon-svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg>
+                    <span>Capture Prioritization</span>
+                </a>
+            </li>
+            <li data-page="alerts">
+                <a href="javascript:void(0)" onclick="navigateTo('alerts')">
+                    <svg class="nav-icon-svg" viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+                    <span>Incident Records</span>
+                </a>
+            </li>
+            <li data-page="reports-hub">
+                <a href="javascript:void(0)" onclick="navigateTo('reports-hub')">
+                    <svg class="nav-icon-svg" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                    <span>Compliance & Import</span>
+                </a>
+            </li>
+        </ul>
+
+        <div class="sidebar-footer">
+            <div class="user-badge-card" onclick="openAuthModal()">
+                <div>
+                    <div class="user-name-text" id="sidebarUserName">Official Observer</div>
+                    <div class="user-role-pill" id="sidebarUserRole">CPCB Public Read-Only</div>
+                </div>
+                <span style="font-size: 0.75rem; color: var(--text-tertiary);">Edit</span>
+            </div>
+        </div>
     </aside>
 
-    <main class="app-content">
-      
-      <!-- DASHBOARD -->
-      <section id="page-dashboard" class="app-page hidden">
-        <header class="page-header">
-          <div>
-            <h1>Dashboard</h1>
-            <p>System Overview & Live Telemetry</p>
-          </div>
-        </header>
-
-        <div class="kpi-grid">
-          <div class="kpi-card" id="kpi-co2">
-            <div class="kpi-label">Avg CO₂</div>
-            <div class="kpi-val"><span class="kpi-value">--</span> <span class="kpi-unit">ppm</span></div>
-          </div>
-          <div class="kpi-card" id="kpi-temp">
-            <div class="kpi-label">Avg Temp</div>
-            <div class="kpi-val"><span class="kpi-value">--</span> <span class="kpi-unit">°C</span></div>
-          </div>
-          <div class="kpi-card" id="kpi-hum">
-            <div class="kpi-label">Avg Humidity</div>
-            <div class="kpi-val"><span class="kpi-value">--</span> <span class="kpi-unit">%</span></div>
-          </div>
-          <div class="kpi-card" id="kpi-pm25">
-            <div class="kpi-label">PM2.5</div>
-            <div class="kpi-val"><span class="kpi-value">--</span> <span class="kpi-unit">µg/m³</span></div>
-          </div>
-        </div>
-
-        <div class="dashboard-main-grid">
-          <div class="panel">
-            <div class="panel-header">
-              <h3>Live Telemetry</h3>
+    <!-- Main Viewport -->
+    <div class="main-wrapper">
+        <!-- Topbar -->
+        <header class="topbar">
+            <div class="topbar-left">
+                <h1 class="page-title" id="pageHeading">Metropolitan Telemetry Overview</h1>
+                <div class="telemetry-status-badge">
+                    <span class="status-dot-green"></span>
+                    <span id="telemetryStatusText">6 National Nodes Active</span>
+                </div>
             </div>
-            <div class="chart-wrapper"><canvas id="live-co2-chart"></canvas></div>
-          </div>
-          <div class="panel">
-            <div class="panel-header">
-              <h3>Zone Status</h3>
+
+            <div class="topbar-right">
+                <div class="clock-display" id="systemClock">IST --:--:-- | UTC --:--:--</div>
+                
+                <a href="/" class="btn-minimal" style="text-decoration: none;">
+                    Landing Page
+                </a>
+
+                <button class="btn-minimal" onclick="manualRefreshData()">
+                    Sync Sensors
+                </button>
+                
+                <button class="btn-minimal btn-white" id="topAuthBtn" onclick="openAuthModal()">
+                    Sign In
+                </button>
             </div>
-            <div id="zone-grid" class="zone-list">Loading...</div>
-          </div>
-        </div>
-      </section>
-
-      <!-- HISTORY -->
-      <section id="page-history" class="app-page hidden">
-        <header class="page-header">
-          <div>
-            <h1>Historical Data</h1>
-            <p>Analyze past environmental metrics</p>
-          </div>
         </header>
-        <div class="controls-bar panel">
-          <select id="history-sensor" class="input-control"><option value="">All Sensors</option></select>
-          <input type="datetime-local" id="history-start" class="input-control">
-          <input type="datetime-local" id="history-end" class="input-control">
-          <button id="btn-load-history" class="btn-primary">Apply Filter</button>
-        </div>
-        <div class="panel panel-full">
-          <div class="chart-wrapper"><canvas id="history-chart"></canvas></div>
-        </div>
-      </section>
 
-      <!-- PREDICTIONS -->
-      <section id="page-predictions" class="app-page hidden">
-        <header class="page-header">
-          <div>
-            <h1>AI Forecasts</h1>
-            <p>SARIMA and Random Forest predictive models</p>
-          </div>
-        </header>
-        <div class="controls-bar panel">
-          <select id="predict-sensor" class="input-control"><option value="1">Sensor 1</option></select>
-          <input type="number" id="predict-hours" class="input-control" value="24" min="1" max="72">
-          <button id="btn-run-predict" class="btn-primary">Generate Forecast</button>
-        </div>
-        <div class="panel panel-full">
-          <div class="chart-wrapper"><canvas id="predict-chart"></canvas></div>
-        </div>
-      </section>
+        <!-- Pages Viewport -->
+        <main class="page-viewport">
+            
+            <!-- PAGE 1: LIVE TELEMETRY OVERVIEW -->
+            <section id="page-overview" class="tab-page active">
+                <div class="kpi-row">
+                    <div class="black-card">
+                        <div class="kpi-card-header">
+                            <span class="kpi-label">National Urban Mean CO₂</span>
+                        </div>
+                        <div class="kpi-value-row">
+                            <span class="kpi-large-number" id="kpi-co2-val">--</span>
+                            <span class="kpi-unit">ppm</span>
+                        </div>
+                        <div class="kpi-footer-meta">
+                            <span class="tag-status tag-normal" id="kpi-co2-pill">Standard</span>
+                            <span>CPCB Ambient Reference: 420 ppm</span>
+                        </div>
+                    </div>
 
-      <!-- DIGITAL TWIN -->
-      <section id="page-twin" class="app-page hidden">
-        <header class="page-header">
-          <div>
-            <h1>Digital Twin</h1>
-            <p>Simulate urban interventions</p>
-          </div>
-        </header>
-        <div class="dashboard-main-grid">
-          <div class="panel">
-            <h3>Scenario Parameters</h3>
-            <div class="form-group">
-              <label>Traffic Reduction (%)</label>
-              <input type="number" id="sim-traffic" class="input-control" value="20">
+                    <div class="black-card">
+                        <div class="kpi-card-header">
+                            <span class="kpi-label">Composite Air Quality Index</span>
+                        </div>
+                        <div class="kpi-value-row">
+                            <span class="kpi-large-number" id="kpi-aqi-val">--</span>
+                            <span class="kpi-unit">AQI</span>
+                        </div>
+                        <div class="kpi-footer-meta">
+                            <span class="tag-status tag-moderate" id="kpi-aqi-pill">Moderate</span>
+                            <span id="kpi-pm25-text">PM2.5: -- µg/m³</span>
+                        </div>
+                    </div>
+
+                    <div class="black-card">
+                        <div class="kpi-card-header">
+                            <span class="kpi-label">Regional Atmospheric Temp</span>
+                        </div>
+                        <div class="kpi-value-row">
+                            <span class="kpi-large-number" id="kpi-temp-val">--</span>
+                            <span class="kpi-unit">°C</span>
+                        </div>
+                        <div class="kpi-footer-meta">
+                            <span id="kpi-humidity-text">Relative Humidity: --%</span>
+                            <span>IMD Telemetry</span>
+                        </div>
+                    </div>
+
+                    <div class="black-card">
+                        <div class="kpi-card-header">
+                            <span class="kpi-label">Active Threshold Alerts</span>
+                        </div>
+                        <div class="kpi-value-row">
+                            <span class="kpi-large-number" id="kpi-alerts-val">0</span>
+                            <span class="kpi-unit">Violations</span>
+                        </div>
+                        <div class="kpi-footer-meta">
+                            <span class="tag-status tag-normal" id="kpi-alerts-pill">All Clear</span>
+                            <span>Standard 500 ppm ceiling</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dashboard-grid">
+                    <div class="black-card">
+                        <div class="card-header-clean">
+                            <div>
+                                <h3>Continuous CO₂ Concentration Stream</h3>
+                                <p>Multi-station time-series across National Capital Region, Mumbai MMR, Bengaluru, and Chennai</p>
+                            </div>
+                            <div class="range-toggle-group">
+                                <button class="range-toggle-btn active" onclick="switchChartRange('1h')">1H</button>
+                                <button class="range-toggle-btn" onclick="switchChartRange('6h')">6H</button>
+                                <button class="range-toggle-btn" onclick="switchChartRange('24h')">24H</button>
+                            </div>
+                        </div>
+                        <div class="chart-canvas-box">
+                            <canvas id="liveStreamChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="black-card">
+                        <div class="card-header-clean">
+                            <div>
+                                <h3>National Edge Nodes</h3>
+                                <p>CPCB & State PCB deployed stations</p>
+                            </div>
+                            <span class="tag-status tag-normal" id="sensorCountBadge">6 Stations Online</span>
+                        </div>
+                        <div class="node-feed-container" id="sensorNodesList"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- PAGE 2: GEOSPATIAL SENSOR GRID -->
+            <section id="page-gis-map" class="tab-page">
+                <div class="map-viewport-frame">
+                    <div id="map"></div>
+                    
+                    <div class="map-control-overlay">
+                        <div class="map-control-header">Pollution Concentration Hotspots</div>
+                        <div id="hotspotListContainer"></div>
+                        <div style="margin-top: 10px; font-size: 0.68rem; color: var(--text-tertiary);">
+                            Dispersion envelopes illustrate estimated atmospheric plume transport across arterial corridors.
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- PAGE 3: FORECASTING ENGINE -->
+            <section id="page-predictions" class="tab-page">
+                <div class="form-grid-two-col">
+                    <div class="parameter-card">
+                        <h3 style="font-size: 0.95rem; margin-bottom: 6px;">Empirical Forecasting</h3>
+                        <p style="font-size: 0.75rem; color: var(--text-tertiary); margin-bottom: 16px;">
+                            Ensemble regression using Random Forest with diurnal cycle features and SARIMA seasonal components.
+                        </p>
+
+                        <div class="field-group">
+                            <label style="display: block; font-size: 0.74rem; color: var(--text-tertiary); margin-bottom: 5px;">Monitoring Station</label>
+                            <select id="forecast-sensor-select" class="input-text-clean"></select>
+                        </div>
+
+                        <div class="field-group">
+                            <label style="display: block; font-size: 0.74rem; color: var(--text-tertiary); margin-bottom: 5px;">Forecast Horizon</label>
+                            <select id="forecast-horizon-select" class="input-text-clean">
+                                <option value="24h">24-Hour Horizon (Random Forest Autoregressive)</option>
+                                <option value="7d">7-Day Horizon (Ensemble Diurnal Projection)</option>
+                                <option value="30d">30-Day Horizon (Long-Range Trend Analysis)</option>
+                            </select>
+                        </div>
+
+                        <button class="btn-primary-action" id="btnRunPrediction" onclick="executePrediction()">
+                            Generate Forecast Trajectory
+                        </button>
+
+                        <div style="margin-top: 20px; padding-top: 14px; border-top: 1px solid var(--border-dim);">
+                            <div style="font-size: 0.7rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 10px; font-weight: 600;">
+                                Empirical Validation Diagnostics
+                            </div>
+                            <div style="display: flex; flex-direction: column; gap: 6px; font-size: 0.78rem;">
+                                <div style="display: flex; justify-content: space-between;">
+                                    <span style="color: var(--text-tertiary);">Model Determination (R²):</span>
+                                    <span style="font-family: var(--font-mono); color: var(--status-normal);" id="modelR2Score">0.88</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between;">
+                                    <span style="color: var(--text-tertiary);">Mean Absolute Error (MAE):</span>
+                                    <span style="font-family: var(--font-mono);" id="modelMaeScore">6.84 ppm</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between;">
+                                    <span style="color: var(--text-tertiary);">Algorithm:</span>
+                                    <span style="color: var(--text-primary);">Random Forest (200 Trees)</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="margin-top: 16px;">
+                            <div style="font-size: 0.7rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 8px; font-weight: 600;">
+                                CPCB Severity Category Classifier
+                            </div>
+                            <div id="zoneSeverityLabels" style="display: flex; flex-direction: column; gap: 4px;"></div>
+                        </div>
+                    </div>
+
+                    <div class="parameter-card">
+                        <div class="card-header-clean">
+                            <div>
+                                <h3 id="forecastChartTitle">Projected Concentration Trajectory</h3>
+                                <p id="forecastChartSubtitle">Empirical 5th to 95th Percentile Uncertainty Envelope</p>
+                            </div>
+                            <span class="tag-status tag-normal" id="forecastEngineBadge">RandomForest</span>
+                        </div>
+                        <div class="chart-canvas-box" style="height: 350px;">
+                            <canvas id="predictionChartCanvas"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- PAGE 4: SCENARIO MODELING (DIGITAL TWIN) -->
+            <section id="page-sandbox" class="tab-page">
+                <div class="form-grid-two-col">
+                    <div class="parameter-card">
+                        <h3 style="font-size: 0.95rem; margin-bottom: 6px;">Intervention Policy Sandbox</h3>
+                        <p style="font-size: 0.75rem; color: var(--text-tertiary); margin-bottom: 18px;">
+                            Simulate vehicular restrictions, urban forestry, industrial curtailment, and Direct Air Capture deployment.
+                        </p>
+
+                        <div class="field-group">
+                            <div class="field-label-row">
+                                <span>Vehicular Traffic Restriction:</span>
+                                <span class="field-val-mono" id="trafficValBadge">25%</span>
+                            </div>
+                            <input type="range" id="simTrafficSlider" min="0" max="60" value="25" oninput="updateSliderVal('traffic', this.value, '%')">
+                        </div>
+
+                        <div class="field-group">
+                            <div class="field-label-row">
+                                <span>Urban Afforestation Canopy (km²):</span>
+                                <span class="field-val-mono" id="greenValBadge">8 km²</span>
+                            </div>
+                            <input type="range" id="simGreenSlider" min="0" max="30" value="8" oninput="updateSliderVal('green', this.value, ' km²')">
+                        </div>
+
+                        <div class="field-group">
+                            <div class="field-label-row">
+                                <span>Direct Air Capture (DAC) Scrubbing Units:</span>
+                                <span class="field-val-mono" id="dacValBadge">4 Units</span>
+                            </div>
+                            <input type="range" id="simDacSlider" min="0" max="20" value="4" oninput="updateSliderVal('dac', this.value, ' Units')">
+                        </div>
+
+                        <div class="field-group">
+                            <label style="display: block; font-size: 0.74rem; color: var(--text-tertiary); margin-bottom: 6px;">Industrial Sector Curtailment</label>
+                            <div style="display: flex; gap: 12px; margin-top: 4px;">
+                                <label style="display: flex; align-items: center; gap: 6px; font-size: 0.76rem; cursor: pointer;">
+                                    <input type="checkbox" id="indZone1" value="Zone 1"> Okhla Industrial Cluster
+                                </label>
+                                <label style="display: flex; align-items: center; gap: 6px; font-size: 0.76rem; cursor: pointer;">
+                                    <input type="checkbox" id="indZone2" value="Zone 2"> Peenya Machinery Sector
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="field-group">
+                            <label style="display: block; font-size: 0.74rem; color: var(--text-tertiary); margin-bottom: 4px;">Scenario Identifier</label>
+                            <input type="text" id="simScenarioName" class="input-text-clean" value="National Clean Air Action Plan 2026">
+                        </div>
+
+                        <button class="btn-primary-action" onclick="executeDigitalTwinSimulation()">
+                            Compute Intervention Impact
+                        </button>
+                    </div>
+
+                    <div class="parameter-card">
+                        <div class="stat-summary-strip">
+                            <div class="stat-cell">
+                                <h4>Baseline Concentration</h4>
+                                <p id="simBaselinePpm">-- ppm</p>
+                            </div>
+                            <div class="stat-cell">
+                                <h4>Projected Abatement</h4>
+                                <p id="simProjectedPpm" style="color: var(--status-normal);">-- ppm</p>
+                            </div>
+                            <div class="stat-cell">
+                                <h4>Abatement Efficiency</h4>
+                                <p id="simReductionPct" style="color: var(--text-primary);">--%</p>
+                            </div>
+                        </div>
+
+                        <div class="chart-canvas-box" style="height: 270px; margin-bottom: 14px;">
+                            <canvas id="simulationChartCanvas"></canvas>
+                        </div>
+
+                        <div style="background: var(--bg-surface); padding: 12px; border: 1px solid var(--border-dim); border-radius: 3px;">
+                            <div style="font-size: 0.68rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 6px; font-weight: 600;">
+                                Parametric Abatement Breakdown
+                            </div>
+                            <div id="simBreakdownGrid" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; font-size: 0.74rem;"></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- PAGE 5: CAPTURE PRIORITIZATION MATRIX -->
+            <section id="page-optimizer" class="tab-page">
+                <div class="black-card" style="margin-bottom: 16px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <h3 style="font-size: 0.95rem; margin-bottom: 3px;">Carbon Capture Site Prioritization Leaderboard</h3>
+                            <p style="font-size: 0.75rem; color: var(--text-tertiary);">
+                                Multicriteria allocation formula: Priority Score = (Emission Intensity / 100) × (Population Density / 1000) × Site Accessibility.
+                            </p>
+                        </div>
+                        <span class="tag-status tag-normal">National Assessment</span>
+                    </div>
+                </div>
+
+                <div class="black-card" style="padding: 0; overflow: hidden;">
+                    <table class="enterprise-table">
+                        <thead>
+                            <tr>
+                                <th>Priority</th>
+                                <th>Station & City Location</th>
+                                <th>Environmental Sector</th>
+                                <th>Baseline CO₂</th>
+                                <th>Population Density</th>
+                                <th>Transit Access</th>
+                                <th>Score</th>
+                                <th>CAPEX</th>
+                                <th>Recommended Abatement Protocol</th>
+                            </tr>
+                        </thead>
+                        <tbody id="optimizerTableBody"></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- PAGE 6: INCIDENT MANAGEMENT -->
+            <section id="page-alerts" class="tab-page">
+                <div class="black-card" style="margin-bottom: 16px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <h3 style="font-size: 0.95rem; margin-bottom: 3px;">Environmental Incident Registry</h3>
+                            <p style="font-size: 0.75rem; color: var(--text-tertiary);">Threshold breaches recorded in real-time across Indian urban monitoring stations.</p>
+                        </div>
+                        <div class="range-toggle-group">
+                            <button class="range-toggle-btn active" onclick="filterAlerts('Active')">Active Incidents</button>
+                            <button class="range-toggle-btn" onclick="filterAlerts('All')">Complete Audit Log</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="black-card" style="padding: 0; overflow: hidden;">
+                    <table class="enterprise-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Status</th>
+                                <th>Severity</th>
+                                <th>Monitoring Station</th>
+                                <th>Trigger CO₂</th>
+                                <th>Incident Timestamp (IST)</th>
+                                <th>Diagnostic Message</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="alertsTableBody"></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- PAGE 7: COMPLIANCE & IMPORT -->
+            <section id="page-reports-hub" class="tab-page">
+                <div class="form-grid-two-col">
+                    <div class="black-card">
+                        <h3 style="font-size: 0.95rem; margin-bottom: 4px;">Telemetry Data Ingestion</h3>
+                        <p style="font-size: 0.75rem; color: var(--text-tertiary); margin-bottom: 16px;">Bulk import time-series recordings via comma-separated value format.</p>
+
+                        <div id="dropZone" style="border: 1px dashed var(--border-strong); border-radius: 3px; padding: 30px 16px; text-align: center; cursor: pointer;" onclick="document.getElementById('csvFileInput').click()">
+                            <div style="font-size: 0.82rem; font-weight: 500; color: var(--text-primary); margin-bottom: 4px;">Click or Drag Sensor CSV File</div>
+                            <div style="font-size: 0.7rem; color: var(--text-muted);">Required columns: sensor_id, co2, temp, humidity, pm25, aqi, timestamp</div>
+                            <input type="file" id="csvFileInput" accept=".csv" style="display: none;" onchange="handleFileSelected(event)">
+                        </div>
+
+                        <div id="fileSelectedInfo" style="margin-top: 10px; font-size: 0.76rem; color: var(--text-primary); display: none;"></div>
+
+                        <button class="btn-primary-action" style="margin-top: 14px;" onclick="uploadCsvFile()">
+                            Upload & Parse Dataset
+                        </button>
+                    </div>
+
+                    <div class="black-card">
+                        <h3 style="font-size: 0.95rem; margin-bottom: 4px;">Regulatory Compliance PDF Report</h3>
+                        <p style="font-size: 0.75rem; color: var(--text-tertiary); margin-bottom: 16px;">Compile official atmospheric CO₂ audit reports for environmental authorities.</p>
+
+                        <div class="field-group">
+                            <label style="display: block; font-size: 0.74rem; color: var(--text-tertiary); margin-bottom: 4px;">Audit Period Start</label>
+                            <input type="date" id="reportStartDate" class="input-text-clean" value="2025-01-01">
+                        </div>
+
+                        <div class="field-group">
+                            <label style="display: block; font-size: 0.74rem; color: var(--text-tertiary); margin-bottom: 4px;">Audit Period End</label>
+                            <input type="date" id="reportEndDate" class="input-text-clean" value="2026-10-13">
+                        </div>
+
+                        <div class="field-group">
+                            <label style="display: block; font-size: 0.74rem; color: var(--text-tertiary); margin-bottom: 4px;">Target Sectors</label>
+                            <select id="reportZonesSelect" class="input-text-clean">
+                                <option value="All National Monitoring Stations">All National Monitoring Stations</option>
+                                <option value="Delhi NCR Metropolitan Region">Delhi NCR Metropolitan Region</option>
+                                <option value="Mumbai Metropolitan Region (MMR)">Mumbai Metropolitan Region (MMR)</option>
+                                <option value="Bengaluru Industrial Corridor">Bengaluru Industrial Corridor</option>
+                            </select>
+                        </div>
+
+                        <button class="btn-primary-action" id="btnDownloadReport" onclick="generateAndDownloadReport()">
+                            Compile & Download PDF
+                        </button>
+                        
+                        <div id="reportDownloadArea" style="margin-top: 12px;"></div>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+</div>
+
+<!-- Authentication & Role Switcher Modal -->
+<div class="modal-overlay" id="authModal">
+    <div class="modal-box">
+        <div class="modal-title-row">
+            <h3>Identity & Role Clearance</h3>
+            <button class="btn-close-clean" onclick="closeAuthModal()">✕</button>
+        </div>
+
+        <div style="display: flex; gap: 6px; margin-bottom: 16px; border-bottom: 1px solid var(--border-dim); padding-bottom: 10px;">
+            <button class="range-toggle-btn active" id="tabLoginBtn" onclick="switchAuthTab('login')">Sign In</button>
+            <button class="range-toggle-btn" id="tabRegisterBtn" onclick="switchAuthTab('register')">Register Account</button>
+        </div>
+
+        <form id="authForm" onsubmit="handleAuthSubmit(event)">
+            <div class="field-group" id="regNameGroup" style="display: none;">
+                <label style="display: block; font-size: 0.74rem; color: var(--text-tertiary); margin-bottom: 4px;">Full Name</label>
+                <input type="text" id="authName" class="input-text-clean" placeholder="Dr. Rajesh Kumar">
             </div>
-            <div class="form-group">
-              <label>Ventilation Increase (%)</label>
-              <input type="number" id="sim-ventilation" class="input-control" value="15">
+
+            <div class="field-group">
+                <label style="display: block; font-size: 0.74rem; color: var(--text-tertiary); margin-bottom: 4px;">Email</label>
+                <input type="email" id="authEmail" class="input-text-clean" placeholder="admin@dtcm.com" required>
             </div>
-            <button id="btn-run-sim" class="btn-primary" style="width: 100%; margin-top: 1rem;">Execute Simulation</button>
-          </div>
-          <div class="panel">
-            <canvas id="sim-chart"></canvas>
-          </div>
+
+            <div class="field-group">
+                <label style="display: block; font-size: 0.74rem; color: var(--text-tertiary); margin-bottom: 4px;">Access Password</label>
+                <input type="password" id="authPassword" class="input-text-clean" placeholder="••••••••" required>
+            </div>
+
+            <div class="field-group" id="regRoleGroup" style="display: none;">
+                <label style="display: block; font-size: 0.74rem; color: var(--text-tertiary); margin-bottom: 4px;">Role Clearance</label>
+                <select id="authRole" class="input-text-clean">
+                    <option value="administrator">Administrator</option>
+                    <option value="environmental_authority">Environmental Authority</option>
+                    <option value="researcher">Researcher</option>
+                    <option value="general">General Citizen</option>
+                </select>
+            </div>
+
+            <button type="submit" class="btn-primary-action" id="authSubmitBtn" style="margin-top: 6px;">
+                Authenticate
+            </button>
+        </form>
+
+        <div style="margin-top: 20px; padding-top: 14px; border-top: 1px solid var(--border-dim);">
+            <div style="font-size: 0.68rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 8px; font-weight: 600;">
+                Quick Profile Switcher
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
+                <button class="btn-minimal" style="justify-content: center;" onclick="quickLoginAs('admin@dtcm.com', 'admin123', 'Administrator')">
+                    Administrator
+                </button>
+                <button class="btn-minimal" style="justify-content: center;" onclick="quickLoginAs('authority@dtcm.com', 'authority123', 'CPCB Authority')">
+                    CPCB Authority
+                </button>
+                <button class="btn-minimal" style="justify-content: center;" onclick="quickLoginAs('researcher@dtcm.com', 'researcher123', 'IIT Researcher')">
+                    IIT Researcher
+                </button>
+                <button class="btn-minimal" style="justify-content: center;" onclick="quickLoginAs('citizen@dtcm.com', 'citizen123', 'General Citizen')">
+                    General Citizen
+                </button>
+            </div>
         </div>
-      </section>
+    </div>
+</div>
 
-      <!-- HEATMAP -->
-      <section id="page-heatmap" class="app-page hidden">
-        <header class="page-header">
-          <div>
-            <h1>Spatial Heatmap</h1>
-            <p>Geographic distribution of CO₂</p>
-          </div>
-        </header>
-        <div class="panel panel-full" style="height: 600px; padding: 0; overflow: hidden;">
-          <div id="map" style="height: 100%; width: 100%;"></div>
+<!-- City Deep-Dive / Station Inspector Modal -->
+<div class="modal-overlay" id="cityModalOverlay" style="display: none;" onclick="if(event.target === this) closeCityModal()">
+    <div class="modal-window" style="max-width: 780px; max-height: 90vh; overflow-y: auto;">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px;">
+            <div>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span id="cityModalCode" style="font-family: var(--font-mono); font-size: 0.74rem; background: var(--bg-surface-elevated); padding: 2px 8px; border-radius: 3px; border: 1px solid var(--border-dim); color: var(--accent-blue); font-weight: 600;">DL-01</span>
+                    <h2 id="cityModalTitle" style="font-size: 1.25rem; font-weight: 700; letter-spacing: -0.01em;">Anand Vihar ISBT, New Delhi</h2>
+                </div>
+                <div id="cityModalSubtitle" style="font-size: 0.78rem; color: var(--text-tertiary); margin-top: 4px;">
+                    Interstate Transit Hub & Heavy Traffic Corridor &bull; Delhi NCR
+                </div>
+            </div>
+            <button class="modal-close-btn" onclick="closeCityModal()">&times;</button>
         </div>
-      </section>
 
-      <!-- ALERTS -->
-      <section id="page-alerts" class="app-page hidden">
-        <header class="page-header">
-          <div>
-            <h1>System Alerts</h1>
-            <p>Real-time threshold breaches</p>
-          </div>
-        </header>
-        <div class="panel panel-full">
-          <div id="alerts-container" class="alerts-list"></div>
+        <!-- Real-Time Metrics Row (4 Mini Cards) -->
+        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 20px;">
+            <div style="background: var(--bg-surface); border: 1px solid var(--border-dim); padding: 12px; border-radius: 4px;">
+                <div style="font-size: 0.68rem; text-transform: uppercase; color: var(--text-muted); font-weight: 600;">CO₂ Level</div>
+                <div id="cityModalCo2" style="font-family: var(--font-mono); font-size: 1.25rem; font-weight: 700; color: var(--text-primary); margin-top: 2px;">-- ppm</div>
+                <div id="cityModalSeverity" style="font-size: 0.68rem; font-weight: 600; text-transform: uppercase; margin-top: 2px; color: var(--status-normal);">Normal</div>
+            </div>
+            <div style="background: var(--bg-surface); border: 1px solid var(--border-dim); padding: 12px; border-radius: 4px;">
+                <div style="font-size: 0.68rem; text-transform: uppercase; color: var(--text-muted); font-weight: 600;">Ambient Temp</div>
+                <div id="cityModalTemp" style="font-family: var(--font-mono); font-size: 1.25rem; font-weight: 700; color: var(--text-primary); margin-top: 2px;">-- °C</div>
+                <div id="cityModalHum" style="font-size: 0.68rem; color: var(--text-tertiary); margin-top: 2px;">Humidity: --%</div>
+            </div>
+            <div style="background: var(--bg-surface); border: 1px solid var(--border-dim); padding: 12px; border-radius: 4px;">
+                <div style="font-size: 0.68rem; text-transform: uppercase; color: var(--text-muted); font-weight: 600;">Air Quality Index</div>
+                <div id="cityModalAqi" style="font-family: var(--font-mono); font-size: 1.25rem; font-weight: 700; color: var(--text-primary); margin-top: 2px;">AQI --</div>
+                <div id="cityModalPm25" style="font-size: 0.68rem; color: var(--text-tertiary); margin-top: 2px;">PM2.5: -- µg/m³</div>
+            </div>
+            <div style="background: var(--bg-surface); border: 1px solid var(--border-dim); padding: 12px; border-radius: 4px;">
+                <div style="font-size: 0.68rem; text-transform: uppercase; color: var(--text-muted); font-weight: 600;">Population Density</div>
+                <div id="cityModalPop" style="font-family: var(--font-mono); font-size: 1.15rem; font-weight: 700; color: var(--text-primary); margin-top: 2px;">-- / km²</div>
+                <div id="cityModalElev" style="font-size: 0.68rem; color: var(--text-tertiary); margin-top: 2px;">Elevation: --</div>
+            </div>
         </div>
-      </section>
 
-    </main>
-  </div>
+        <!-- 24-Hour Historical Trend Canvas -->
+        <div style="background: var(--bg-surface); border: 1px solid var(--border-dim); border-radius: 4px; padding: 14px; margin-bottom: 20px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <span style="font-size: 0.76rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em;">24-Hour Observed Atmospheric Trend</span>
+                <span style="font-family: var(--font-mono); font-size: 0.68rem; color: var(--text-tertiary);">Station Telemetry Stream</span>
+            </div>
+            <div style="height: 160px; position: relative;">
+                <canvas id="cityHistoryChartCanvas"></canvas>
+            </div>
+        </div>
 
-  <!-- Scripts -->
-  <script src="js/dashboard.js?v=4"></script>
-  <script src="js/charts.js?v=7"></script>
-  <script src="js/simulation.js?v=7"></script>
-  <script src="js/heatmap.js?v=5"></script>
-  <script>
-    /* ==========================================
-       ROUTING AND AUTHENTICATION LOGIC
-       ========================================== */
-    const USER_KEY = 'dtcm_user';
-    
-    function getToken() { return localStorage.getItem('dtcm_token'); }
-    function setToken(t) { localStorage.setItem('dtcm_token', t); }
-    function clearAuth() { localStorage.removeItem('dtcm_token'); localStorage.removeItem(USER_KEY); }
+        <!-- Demographics & Physical Air Shed Characteristics -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 20px;">
+            <div style="background: var(--bg-surface); border: 1px solid var(--border-dim); padding: 14px; border-radius: 4px;">
+                <div style="font-size: 0.76rem; font-weight: 600; text-transform: uppercase; margin-bottom: 8px; color: var(--accent-blue);">
+                    Primary Atmospheric Vulnerability
+                </div>
+                <p id="cityModalVulnerability" style="font-size: 0.78rem; color: var(--text-secondary); line-height: 1.5;">
+                    --
+                </p>
+                <div style="margin-top: 10px; font-size: 0.72rem; color: var(--text-muted);">
+                    Climate Regime: <span id="cityModalClimate" style="color: var(--text-secondary);">--</span>
+                </div>
+            </div>
 
-    function showLanding() {
-      document.querySelectorAll('.page, .app-shell').forEach(el => el.classList.add('hidden'));
-      document.getElementById('page-landing').classList.remove('hidden');
-    }
+            <div style="background: var(--bg-surface); border: 1px solid var(--border-dim); padding: 14px; border-radius: 4px;">
+                <div style="font-size: 0.76rem; font-weight: 600; text-transform: uppercase; margin-bottom: 8px; color: var(--text-primary);">
+                    Major Emission Drivers
+                </div>
+                <ul id="cityModalDrivers" style="padding-left: 18px; font-size: 0.76rem; color: var(--text-secondary); line-height: 1.45;">
+                </ul>
+            </div>
+        </div>
 
-    function showLogin() {
-      document.querySelectorAll('.page, .app-shell').forEach(el => el.classList.add('hidden'));
-      document.getElementById('page-login').classList.remove('hidden');
-    }
+        <!-- Carbon Capture & Digital Twin Action Plan -->
+        <div style="background: var(--bg-surface); border: 1px solid var(--border-dim); border-radius: 4px; padding: 14px; margin-bottom: 20px;">
+            <div style="font-size: 0.76rem; font-weight: 600; text-transform: uppercase; color: var(--accent-emerald); margin-bottom: 8px;">
+                Recommended Carbon Capture Intervention (Digital Twin Optimizer)
+            </div>
+            <div id="cityModalDacAction" style="font-size: 0.85rem; font-weight: 600; color: var(--text-primary); margin-bottom: 6px;">
+                --
+            </div>
+            <div style="display: flex; gap: 16px; font-size: 0.76rem; color: var(--text-secondary); margin-top: 8px;">
+                <div>Mitigation Potential: <span id="cityModalMitigation" style="font-family: var(--font-mono); color: var(--status-normal); font-weight: 600;">--</span></div>
+                <div>Capital Tier: <span id="cityModalCapex" style="font-family: var(--font-mono); color: var(--text-primary);">--</span></div>
+                <div>Priority Level: <span id="cityModalPriority" style="font-family: var(--font-mono); color: var(--status-warning);">--</span></div>
+            </div>
+        </div>
 
-    function showApp() {
-      document.querySelectorAll('.page').forEach(el => el.classList.add('hidden'));
-      document.getElementById('app-main').classList.remove('hidden');
-      var raw = localStorage.getItem(USER_KEY);
-      if(raw) {
-        var u = JSON.parse(raw);
-        document.getElementById('user-display').textContent = u.username || u.email;
-      }
-    }
+        <!-- Footer Actions -->
+        <div style="display: flex; justify-content: flex-end; gap: 10px;">
+            <button class="btn-minimal" id="btnExportCityCsv" onclick="exportCityCsv()">Export Station CSV</button>
+            <button class="btn-minimal btn-white" id="btnSimulateCity" onclick="simulateCityInSandbox()">Load into Sandbox &rarr;</button>
+        </div>
+    </div>
+</div>
 
-    var currentPage = null;
-    var pageInit = {
-      dashboard: function() { if (typeof initDashboard === 'function') initDashboard(); },
-      heatmap: function() { if (typeof initHeatmap === 'function') initHeatmap(); },
-      alerts: function() { if (typeof initAlerts === 'function') initAlerts(); },
-      history: function() { if (typeof initHistory === 'function') initHistory(); }
-    };
+<!-- Minimalist Toast Container -->
+<div class="toast-stack" id="toastContainer"></div>
 
-    function showPage(pageName) {
-      if(!getToken()) { showLogin(); return; }
-      document.querySelectorAll('.app-page').forEach(el => el.classList.add('hidden'));
-      document.getElementById('page-' + pageName).classList.remove('hidden');
-      document.querySelectorAll('.nav-link').forEach(link => {
-        link.classList.toggle('active', link.dataset.page === pageName);
-      });
-      currentPage = pageName;
-      if (pageInit[pageName]) pageInit[pageName]();
-    }
-
-    // Event Listeners
-    document.querySelectorAll('.nav-link').forEach(link => {
-      link.addEventListener('click', e => {
-        e.preventDefault();
-        showPage(link.dataset.page);
-      });
-    });
-
-    document.getElementById('btn-goto-login').addEventListener('click', showLogin);
-    document.getElementById('btn-hero-login').addEventListener('click', showLogin);
-    
-    document.getElementById('link-to-register').addEventListener('click', (e) => {
-      e.preventDefault();
-      document.getElementById('page-login').classList.add('hidden');
-      document.getElementById('page-register').classList.remove('hidden');
-    });
-    document.getElementById('link-to-login').addEventListener('click', (e) => {
-      e.preventDefault();
-      document.getElementById('page-register').classList.add('hidden');
-      document.getElementById('page-login').classList.remove('hidden');
-    });
-
-    document.getElementById('btn-logout').addEventListener('click', () => {
-      clearAuth();
-      showLanding();
-    });
-
-    // Login Form
-    document.getElementById('login-form').addEventListener('submit', async e => {
-      e.preventDefault();
-      var email = document.getElementById('login-email').value.trim();
-      var password = document.getElementById('login-password').value;
-      var err = document.getElementById('login-error');
-      err.classList.add('hidden');
-      
-      try {
-        var res = await fetch('http://127.0.0.1:5000/api/auth/login', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({email, password})
-        });
-        var data = await res.json();
-        if(!res.ok) {
-          err.textContent = data.message || data.error || 'Login failed';
-          err.classList.remove('hidden');
-          return;
-        }
-        setToken(data.access_token);
-        localStorage.setItem(USER_KEY, JSON.stringify({ email: email }));
-        showApp();
-        showPage('dashboard');
-      } catch(e) {
-        err.textContent = 'Network error';
-        err.classList.remove('hidden');
-      }
-    });
-
-    // Register Form
-    document.getElementById('register-form').addEventListener('submit', async e => {
-      e.preventDefault();
-      var name = document.getElementById('register-name').value.trim();
-      var email = document.getElementById('register-email').value.trim();
-      var password = document.getElementById('register-password').value;
-      var err = document.getElementById('register-error');
-      err.classList.add('hidden');
-      
-      try {
-        var res = await fetch('http://127.0.0.1:5000/api/auth/register', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({name, email, password})
-        });
-        if(!res.ok) {
-          var data = await res.json();
-          err.textContent = data.message || data.error || 'Registration failed';
-          err.classList.remove('hidden');
-          return;
-        }
-        alert('Registration successful! You can now sign in.');
-        document.getElementById('link-to-login').click();
-      } catch(e) {
-        err.textContent = 'Network error';
-        err.classList.remove('hidden');
-      }
-    });
-
-    // Bootstrap
-    (function bootstrap() {
-      if(getToken()) { showApp(); showPage('dashboard'); }
-      else { showLanding(); }
-    })();
-  </script>
+<!-- Master Controller Script -->
+<script src="js/dashboard.js"></script>
 </body>
 </html>
-
-
-
-
-
-
