@@ -62,6 +62,10 @@ def create_app(config_class=None):
     @app.route('/app')
     def dashboard_page():
         return app.send_static_file('index.html')
+
+    @app.route('/favicon.ico')
+    def favicon():
+        return ('', 204)
         
     # Start digital twin sync thread if not testing
     if not app.config.get('TESTING', False):

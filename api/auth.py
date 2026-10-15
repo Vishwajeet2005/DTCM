@@ -11,28 +11,22 @@ auth_bp = Blueprint('auth', __name__)
 from app_db import db
 
 @auth_bp.route('/register', methods=['POST'])
-@jwt_required()
 def register():
-    current_user_id = get_jwt_identity()
-    try:
-        admin = db.session.get(Users, int(current_user_id))
-    except (ValueError, TypeError):
-        admin = None
-        
-    if not admin or (admin.Role != 'administrator' and admin.Role != 'environmental_authority'):
-        return jsonify({"msg": "Unauthorized"}), 403
-
     data = request.get_json() or {}
-    email = data.get('email')
-    password = data.get('password')
+    email = (data.get('email') or '').strip()
+    password = data.get('password') or ''
     role = data.get('role', 'general')
-    name = data.get('name', '')
+    name = (data.get('name') or '').strip()
 
     if not email or not password:
         return jsonify({"msg": "Email and password are required"}), 400
 
+    valid_roles = ['administrator', 'environmental_authority', 'researcher', 'general']
+    if role not in valid_roles:
+        role = 'general'
+
     if db.session.query(Users).filter_by(Email=email).first():
-        return jsonify({"msg": "Email already exists"}), 400
+        return jsonify({"msg": "An account with this email address already exists"}), 400
 
     hashed = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt(12))
     
@@ -40,12 +34,20 @@ def register():
         Email=email, 
         PasswordHash=hashed.decode('utf-8'), 
         Role=role, 
-        Name=name
+        Name=name or email.split('@')[0]
     )
     db.session.add(new_user)
     db.session.commit()
     
-    return jsonify({"msg": "User created successfully", "user_id": new_user.UserID}), 201
+    access_token = create_access_token(identity=str(new_user.UserID))
+    return jsonify({
+        "msg": "User created successfully",
+        "user_id": new_user.UserID,
+        "access_token": access_token,
+        "role": new_user.Role,
+        "name": new_user.Name,
+        "email": new_user.Email
+    }), 201
 
 @auth_bp.route('/login', methods=['POST'])
 def login():

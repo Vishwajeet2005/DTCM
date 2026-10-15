@@ -523,13 +523,28 @@
           const data = await res.json();
           if (!res.ok) throw new Error(data.msg || data.error || 'Registration failed');
 
-          statusMsg.className = 'status-msg success';
-          statusMsg.innerText = 'Account successfully registered. Please sign in.';
-          setTimeout(() => {
-            switchTab('login');
-            document.getElementById('inputEmail').value = email;
-            document.getElementById('inputPassword').value = '';
-          }, 1000);
+          if (data.access_token) {
+            localStorage.setItem('dtcm_token', data.access_token);
+            localStorage.setItem('dtcm_user', JSON.stringify({
+              id: data.user_id,
+              email: data.email,
+              name: data.name || email.split('@')[0],
+              role: data.role
+            }));
+            statusMsg.className = 'status-msg success';
+            statusMsg.innerText = `Account created successfully! Forwarding to Dashboard...`;
+            setTimeout(() => {
+              window.location.href = '/dashboard';
+            }, 700);
+          } else {
+            statusMsg.className = 'status-msg success';
+            statusMsg.innerText = 'Account successfully registered. Please sign in.';
+            setTimeout(() => {
+              switchTab('login');
+              document.getElementById('inputEmail').value = email;
+              document.getElementById('inputPassword').value = '';
+            }, 1000);
+          }
         }
       } catch (err) {
         statusMsg.className = 'status-msg error';
