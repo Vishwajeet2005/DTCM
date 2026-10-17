@@ -637,17 +637,39 @@ function initCharts() {
     fetchInitialHistoricalCurve();
 }
 
-async function fetchInitialHistoricalCurve() {
+let currentChartRange = '1h';
+
+async function fetchInitialHistoricalCurve(range = '1h') {
+    currentChartRange = range;
     try {
-        const res = await fetch(`${API_BASE}/data/history?limit=24`);
+        let hours = 1;
+        let limit = 20;
+        if (range === '6h') {
+            hours = 6;
+            limit = 36;
+        } else if (range === '24h') {
+            hours = 24;
+            limit = 48;
+        }
+
+        const res = await fetch(`${API_BASE}/data/history?hours=${hours}&limit=${limit}`);
         const history = await res.json();
         if (history && history.length > 0) {
             const chart = AppState.charts.liveStream;
-            chart.data.labels = history.slice(-24).map(h => {
-                const d = new Date(h.timestamp);
-                return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+            if (!chart) return;
+            
+            // Format labels cleanly: HH:mm with unique minute buckets
+            chart.data.labels = history.map(h => {
+                const rawTs = h.timestamp || h.Timestamp;
+                const d = rawTs ? new Date(rawTs) : new Date();
+                const hh = String(d.getHours()).padStart(2, '0');
+                const mm = String(d.getMinutes()).padStart(2, '0');
+                return `${hh}:${mm}`;
             });
-            chart.data.datasets[0].data = history.slice(-24).map(h => h.co2);
+            chart.data.datasets[0].data = history.map(h => {
+                const val = h.co2 ?? h.CO2Level;
+                return val !== undefined && val !== null ? Number(Number(val).toFixed(1)) : 0;
+            });
             chart.update();
         }
     } catch (e) {
@@ -657,27 +679,37 @@ async function fetchInitialHistoricalCurve() {
 
 function updateLiveChart(data) {
     const chart = AppState.charts.liveStream;
-    if (!chart) return;
+    if (!chart || !data || data.length === 0) return;
 
-    const avgCo2 = data.reduce((acc, cur) => acc + cur.co2, 0) / data.length;
+    const avgCo2 = Number((data.reduce((acc, cur) => acc + (cur.co2 ?? cur.CO2Level ?? 0), 0) / data.length).toFixed(1));
     const now = new Date();
-    const timeLabel = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
+    const hh = String(now.getHours()).padStart(2, '0');
+    const mm = String(now.getMinutes()).padStart(2, '0');
+    const timeLabel = `${hh}:${mm}`;
 
-    if (chart.data.labels.length > 20) {
-        chart.data.labels.shift();
-        chart.data.datasets[0].data.shift();
+    const labels = chart.data.labels;
+    const values = chart.data.datasets[0].data;
+
+    // If the last label is the current minute, update in-place rather than creating duplicate labels
+    if (labels.length > 0 && labels[labels.length - 1] === timeLabel) {
+        values[values.length - 1] = avgCo2;
+    } else {
+        const maxPoints = currentChartRange === '24h' ? 48 : (currentChartRange === '6h' ? 36 : 24);
+        if (labels.length >= maxPoints) {
+            labels.shift();
+            values.shift();
+        }
+        labels.push(timeLabel);
+        values.push(avgCo2);
     }
-
-    chart.data.labels.push(timeLabel);
-    chart.data.datasets[0].data.push(avgCo2);
     chart.update('none');
 }
 
 function switchChartRange(range) {
     document.querySelectorAll('.range-toggle-group .range-toggle-btn').forEach(btn => {
-        btn.classList.toggle('active', btn.innerText.toLowerCase() === range);
+        btn.classList.toggle('active', btn.innerText.toLowerCase() === range.toLowerCase());
     });
-    fetchInitialHistoricalCurve();
+    fetchInitialHistoricalCurve(range);
 }
 
 // ==========================================
@@ -893,7 +925,8 @@ window.loadCityHistoryChart = async function(sensorId) {
                 const rawTs = d.timestamp || d.Timestamp;
                 const date = rawTs ? new Date(rawTs) : new Date();
                 const h = isNaN(date.getHours()) ? 0 : date.getHours();
-                return `${String(h).padStart(2, '0')}:00`;
+                const m = isNaN(date.getMinutes()) ? 0 : date.getMinutes();
+                return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
             });
             co2Vals = historyData.map(d => {
                 const val = d.co2 ?? d.CO2Level;

@@ -3,13 +3,17 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+BASE_DIR = os.path.abspath(os.path.dirname(__file__))
+DEFAULT_DB_PATH = os.path.join(BASE_DIR, 'dtcm.db')
+DEFAULT_DB_URI = f"sqlite:///{DEFAULT_DB_PATH.replace(os.sep, '/')}"
+
 class Config:
     # Flask
     SECRET_KEY = os.environ.get("SECRET_KEY", "dev-secret")
     TESTING = False
     
     # DB
-    SQLALCHEMY_DATABASE_URI = os.environ.get("DATABASE_URL", "sqlite:///dtcm.db")
+    SQLALCHEMY_DATABASE_URI = os.environ.get("DATABASE_URL", DEFAULT_DB_URI)
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     
     # JWT

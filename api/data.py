@@ -57,46 +57,128 @@ def get_history():
     end_str = request.args.get('end')
     hours = request.args.get('hours', type=int)
     limit = request.args.get('limit', type=int)
+    aggregate = request.args.get('aggregate', '').lower()
     
-    query = db.session.query(EnvironmentalData)
+    max_limit = limit if limit else (hours if hours else 24)
+
+    # 1. Single sensor specific history
     if sensor_id:
         try:
-            query = query.filter_by(SensorID=int(sensor_id))
+            s_id = int(sensor_id)
         except (ValueError, TypeError):
-            pass
-    if start_str:
-        query = query.filter(EnvironmentalData.Timestamp >= datetime.datetime.fromisoformat(start_str))
-    if end_str:
-        query = query.filter(EnvironmentalData.Timestamp <= datetime.datetime.fromisoformat(end_str))
+            s_id = None
+            
+        query = db.session.query(EnvironmentalData)
+        if s_id is not None:
+            query = query.filter_by(SensorID=s_id)
+        if start_str:
+            query = query.filter(EnvironmentalData.Timestamp >= datetime.datetime.fromisoformat(start_str))
+        if end_str:
+            query = query.filter(EnvironmentalData.Timestamp <= datetime.datetime.fromisoformat(end_str))
+            
+        rows = query.order_by(EnvironmentalData.Timestamp.desc()).limit(max_limit).all()
+        rows.reverse()
         
-    if hours:
-        rows = query.order_by(EnvironmentalData.Timestamp.desc()).limit(hours).all()
+        result = []
+        for data in rows:
+            ts = data.Timestamp.isoformat() if data.Timestamp else ""
+            result.append({
+                "sensor_id": data.SensorID,
+                "co2": round(float(data.CO2Level), 2),
+                "CO2Level": round(float(data.CO2Level), 2),
+                "temperature": round(float(data.Temperature), 1) if data.Temperature is not None else None,
+                "Temperature": round(float(data.Temperature), 1) if data.Temperature is not None else None,
+                "humidity": round(float(data.Humidity), 1) if data.Humidity is not None else None,
+                "Humidity": round(float(data.Humidity), 1) if data.Humidity is not None else None,
+                "pm25": round(float(data.PM2S), 1) if data.PM2S is not None else None,
+                "PM2S": round(float(data.PM2S), 1) if data.PM2S is not None else None,
+                "aqi": round(float(data.AQI), 1) if data.AQI is not None else None,
+                "AQI": round(float(data.AQI), 1) if data.AQI is not None else None,
+                "timestamp": ts,
+                "Timestamp": ts
+            })
+        return jsonify(result)
+
+    # 2. Raw unaggregated multi-sensor history if explicitly requested
+    if aggregate == 'raw':
+        query = db.session.query(EnvironmentalData)
+        if start_str:
+            query = query.filter(EnvironmentalData.Timestamp >= datetime.datetime.fromisoformat(start_str))
+        if end_str:
+            query = query.filter(EnvironmentalData.Timestamp <= datetime.datetime.fromisoformat(end_str))
+        rows = query.order_by(EnvironmentalData.Timestamp.desc()).limit(max_limit).all()
         rows.reverse()
-    elif limit:
-        rows = query.order_by(EnvironmentalData.Timestamp.desc()).limit(limit).all()
-        rows.reverse()
-    elif not start_str and not end_str:
-        rows = query.order_by(EnvironmentalData.Timestamp.desc()).limit(24).all()
-        rows.reverse()
+        result = []
+        for data in rows:
+            ts = data.Timestamp.isoformat() if data.Timestamp else ""
+            result.append({
+                "sensor_id": data.SensorID,
+                "co2": round(float(data.CO2Level), 2),
+                "CO2Level": round(float(data.CO2Level), 2),
+                "temperature": round(float(data.Temperature), 1) if data.Temperature is not None else None,
+                "Temperature": round(float(data.Temperature), 1) if data.Temperature is not None else None,
+                "humidity": round(float(data.Humidity), 1) if data.Humidity is not None else None,
+                "Humidity": round(float(data.Humidity), 1) if data.Humidity is not None else None,
+                "pm25": round(float(data.PM2S), 1) if data.PM2S is not None else None,
+                "PM2S": round(float(data.PM2S), 1) if data.PM2S is not None else None,
+                "aqi": round(float(data.AQI), 1) if data.AQI is not None else None,
+                "AQI": round(float(data.AQI), 1) if data.AQI is not None else None,
+                "timestamp": ts,
+                "Timestamp": ts
+            })
+        return jsonify(result)
+
+    # 3. National Mean Aggregation (per minute bucket, deduplicating x-axis timestamps)
+    dialect_name = db.engine.dialect.name
+    if dialect_name == 'sqlite':
+        time_bucket = func.strftime('%Y-%m-%d %H:%M:00', EnvironmentalData.Timestamp)
     else:
-        rows = query.order_by(EnvironmentalData.Timestamp.asc()).limit(1000).all()
-    
+        time_bucket = func.date_trunc('minute', EnvironmentalData.Timestamp)
+
+    subq = db.session.query(
+        time_bucket.label('bucket'),
+        func.avg(EnvironmentalData.CO2Level).label('co2'),
+        func.avg(EnvironmentalData.Temperature).label('temperature'),
+        func.avg(EnvironmentalData.Humidity).label('humidity'),
+        func.avg(EnvironmentalData.PM2S).label('pm25'),
+        func.avg(EnvironmentalData.AQI).label('aqi'),
+        func.count(EnvironmentalData.DataID).label('station_count')
+    )
+    if start_str:
+        subq = subq.filter(EnvironmentalData.Timestamp >= datetime.datetime.fromisoformat(start_str))
+    if end_str:
+        subq = subq.filter(EnvironmentalData.Timestamp <= datetime.datetime.fromisoformat(end_str))
+
+    subq = subq.group_by('bucket').order_by(time_bucket.desc()).limit(max_limit)
+    rows = subq.all()
+    rows.reverse()
+
     result = []
-    for data in rows:
+    for r in rows:
+        ts_val = r.bucket
+        if isinstance(ts_val, datetime.datetime):
+            ts_iso = ts_val.isoformat()
+        else:
+            try:
+                ts_iso = datetime.datetime.fromisoformat(str(ts_val)).isoformat()
+            except Exception:
+                ts_iso = str(ts_val)
+
         result.append({
-            "sensor_id": data.SensorID,
-            "co2": round(float(data.CO2Level), 2),
-            "CO2Level": round(float(data.CO2Level), 2),
-            "temperature": round(float(data.Temperature), 1) if data.Temperature is not None else None,
-            "Temperature": round(float(data.Temperature), 1) if data.Temperature is not None else None,
-            "humidity": round(float(data.Humidity), 1) if data.Humidity is not None else None,
-            "Humidity": round(float(data.Humidity), 1) if data.Humidity is not None else None,
-            "pm25": round(float(data.PM2S), 1) if data.PM2S is not None else None,
-            "PM2S": round(float(data.PM2S), 1) if data.PM2S is not None else None,
-            "aqi": round(float(data.AQI), 1) if data.AQI is not None else None,
-            "AQI": round(float(data.AQI), 1) if data.AQI is not None else None,
-            "timestamp": data.Timestamp.isoformat(),
-            "Timestamp": data.Timestamp.isoformat()
+            "sensor_id": "national_mean",
+            "co2": round(float(r.co2), 2) if r.co2 is not None else 0.0,
+            "CO2Level": round(float(r.co2), 2) if r.co2 is not None else 0.0,
+            "temperature": round(float(r.temperature), 1) if r.temperature is not None else None,
+            "Temperature": round(float(r.temperature), 1) if r.temperature is not None else None,
+            "humidity": round(float(r.humidity), 1) if r.humidity is not None else None,
+            "Humidity": round(float(r.humidity), 1) if r.humidity is not None else None,
+            "pm25": round(float(r.pm25), 1) if r.pm25 is not None else None,
+            "PM2S": round(float(r.pm25), 1) if r.pm25 is not None else None,
+            "aqi": round(float(r.aqi), 1) if r.aqi is not None else None,
+            "AQI": round(float(r.aqi), 1) if r.aqi is not None else None,
+            "timestamp": ts_iso,
+            "Timestamp": ts_iso,
+            "station_count": r.station_count
         })
     return jsonify(result)
 
