@@ -594,9 +594,11 @@ function initCharts() {
                 data: [],
                 borderColor: '#ffffff',
                 borderWidth: 1.5,
-                fill: false,
-                tension: 0.2,
+                fill: true,
+                backgroundColor: 'rgba(255, 255, 255, 0.03)',
+                tension: 0.3,
                 pointRadius: 2.5,
+                pointHoverRadius: 4.5,
                 pointBackgroundColor: '#ffffff'
             }]
         },
@@ -626,15 +628,34 @@ function initCharts() {
                 },
                 y: {
                     grid: { color: '#141418' },
-                    ticks: { color: '#52525b', font: { family: 'JetBrains Mono', size: 9 } },
-                    suggestedMin: 400,
-                    suggestedMax: 550
+                    ticks: { 
+                        color: '#71717a', 
+                        font: { family: 'JetBrains Mono', size: 9 },
+                        callback: (v) => `${v}`
+                    },
+                    grace: '5%'
                 }
             }
         }
     });
 
     fetchInitialHistoricalCurve();
+}
+
+function autoScaleLiveStreamY(chart) {
+    if (!chart || !chart.data || !chart.data.datasets || !chart.data.datasets[0]) return;
+    const rawData = chart.data.datasets[0].data;
+    const valid = rawData.filter(v => v !== null && v !== undefined && !isNaN(v) && v > 0);
+    if (valid.length === 0) return;
+
+    const min = Math.min(...valid);
+    const max = Math.max(...valid);
+    const span = max - min;
+    
+    // Snug minimized range: at least 1.5 ppm buffer so variations are clearly pronounced
+    const pad = Math.max(1.5, span * 0.15);
+    chart.options.scales.y.suggestedMin = Math.floor(min - pad);
+    chart.options.scales.y.suggestedMax = Math.ceil(max + pad);
 }
 
 let currentChartRange = '1h';
@@ -670,6 +691,7 @@ async function fetchInitialHistoricalCurve(range = '1h') {
                 const val = h.co2 ?? h.CO2Level;
                 return val !== undefined && val !== null ? Number(Number(val).toFixed(1)) : 0;
             });
+            autoScaleLiveStreamY(chart);
             chart.update();
         }
     } catch (e) {
@@ -702,6 +724,7 @@ function updateLiveChart(data) {
         labels.push(timeLabel);
         values.push(avgCo2);
     }
+    autoScaleLiveStreamY(chart);
     chart.update('none');
 }
 
@@ -994,9 +1017,8 @@ window.loadCityHistoryChart = async function(sensorId) {
                     },
                     y: {
                         grid: { color: '#1c1c21' },
-                        ticks: { color: '#71717a', font: { family: 'JetBrains Mono', size: 9 } },
-                        suggestedMin: Math.floor(minVal - 10),
-                        suggestedMax: Math.ceil(maxVal + 10)
+                        suggestedMin: Math.floor(minVal - Math.max(2.0, (maxVal - minVal) * 0.15)),
+                        suggestedMax: Math.ceil(maxVal + Math.max(2.0, (maxVal - minVal) * 0.15))
                     }
                 }
             }
