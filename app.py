@@ -100,5 +100,4 @@ if __name__ == '__main__':
                 user_obj = Users(Email=email, PasswordHash=hashed, Role=role, Name=name)
                 db.session.add(user_obj)
         db.session.commit()
-            
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    app.run(host='0.0.0.0', port=5000, debug=False, use_reloader=False)
