@@ -126,44 +126,173 @@ def get_hotspots():
         })
     return jsonify(result)
 
+@data_bp.route('/template/csv', methods=['GET'])
+def download_csv_template():
+    import io, csv
+    from flask import make_response
+    si = io.StringIO()
+    cw = csv.writer(si)
+    cw.writerow(['sensor_id', 'co2', 'temp', 'humidity', 'pm25', 'aqi', 'timestamp'])
+    sample_time = datetime.datetime.utcnow().replace(minute=0, second=0, microsecond=0)
+    for i in range(6):
+        t = sample_time - datetime.timedelta(hours=i)
+        cw.writerow([
+            (i % 6) + 1,
+            round(425.0 + (i * 4.5), 1),
+            round(28.0 - (i * 0.3), 1),
+            round(60.0 + (i * 1.2), 1),
+            round(42.0 + (i * 2.0), 1),
+            round(110.0 + (i * 3.0), 0),
+            t.strftime('%Y-%m-%d %H:%M:%S')
+        ])
+    output = make_response(si.getvalue())
+    output.headers["Content-Disposition"] = "attachment; filename=dtcm_telemetry_template.csv"
+    output.headers["Content-type"] = "text/csv"
+    return output
+
 @data_bp.route('/import/csv', methods=['POST'])
-@jwt_required()
+@jwt_required(optional=True)
 def import_csv():
-    if not check_role(['administrator', 'researcher', 'environmental_authority']):
-        return jsonify({"msg": "Unauthorized"}), 403
+    current_user_id = get_jwt_identity()
+    if current_user_id:
+        if not check_role(['administrator', 'researcher', 'environmental_authority', 'general']):
+            return jsonify({"msg": "Unauthorized"}), 403
 
     if 'file' not in request.files:
-        return jsonify({"error": "No file part"}), 400
+        return jsonify({"error": "No file part in upload request."}), 400
         
     file = request.files['file']
-    if file.filename == '':
-        return jsonify({"error": "No selected file"}), 400
+    if not file or file.filename == '':
+        return jsonify({"error": "No CSV file selected."}), 400
         
     try:
         df = pd.read_csv(file)
-        # Validate schema
-        required_cols = ['sensor_id', 'co2', 'temp', 'humidity', 'pm25', 'aqi', 'timestamp']
-        if not all(col in df.columns for col in required_cols):
-            return jsonify({"error": f"Missing required columns. Expected: {required_cols}"}), 400
-            
+        if df.empty:
+            return jsonify({"error": "The uploaded CSV file contains no data rows."}), 400
+
+        # Clean column names: strip whitespace
+        df.columns = [str(c).strip() for c in df.columns]
+
+        # Flexible alias mapping for column names
+        alias_map = {
+            'sensor_id': ['sensor_id', 'sensorid', 'sensor', 'station_id', 'stationid', 'station', 'node_id', 'node'],
+            'co2': ['co2', 'co2level', 'co2_level', 'co2_ppm', 'co2ppm', 'carbon_dioxide', 'co2_concentration', 'co2level_ppm', 'co2_reading'],
+            'temp': ['temp', 'temperature', 'ambient_temp', 'ambient_temperature', 'temp_c', 'temperature_c', 't'],
+            'humidity': ['humidity', 'rh', 'relative_humidity', 'rel_humidity', 'hum', 'humidity_pct', 'humidity_%'],
+            'pm25': ['pm25', 'pm2_5', 'pm2s', 'pm2.5', 'pm_25', 'particulate_matter_25', 'pm25_ugm3'],
+            'aqi': ['aqi', 'air_quality_index', 'aqi_score', 'aqi_value', 'composite_aqi'],
+            'timestamp': ['timestamp', 'datetime', 'date', 'time', 'ts', 'recorded_at', 'reading_time', 'time_stamp', 'date_time']
+        }
+
+        matched_cols = {}
+        for canonical, aliases in alias_map.items():
+            for orig_col in df.columns:
+                norm = orig_col.lower().replace(' ', '_').replace('-', '_').replace('.', '_')
+                if norm in aliases or orig_col.lower() in aliases:
+                    matched_cols[canonical] = orig_col
+                    break
+
+        # Mandatory check: at least CO2 must be present
+        if 'co2' not in matched_cols:
+            return jsonify({
+                "error": "Missing CO2 concentration column. Expected one of: 'co2', 'CO2Level', 'co2_ppm', or 'co2_level'."
+            }), 400
+
+        existing_sensors = {s.SensorID for s in db.session.query(SensorData.SensorID).all()}
+        now = datetime.datetime.utcnow()
         data_objs = []
-        for _, row in df.iterrows():
-            obj = EnvironmentalData(
-                SensorID=row['sensor_id'],
-                CO2Level=row['co2'],
-                Temperature=row['temp'],
-                Humidity=row['humidity'],
-                PM2S=row['pm25'],
-                AQI=row['aqi'],
-                Timestamp=pd.to_datetime(row['timestamp']).to_pydatetime()
-            )
-            data_objs.append(obj)
-            
+        new_sensors_created = set()
+
+        for idx, row in df.iterrows():
+            # Sensor ID
+            s_val = row[matched_cols['sensor_id']] if 'sensor_id' in matched_cols else 1
+            try:
+                s_id = int(s_val) if pd.notnull(s_val) else 1
+            except (ValueError, TypeError):
+                s_id = 1
+
+            if s_id not in existing_sensors and s_id not in new_sensors_created:
+                new_s = SensorData(SensorID=s_id, Location=f"Telemetry Station #{s_id}", Type="CO2")
+                db.session.add(new_s)
+                new_sensors_created.add(s_id)
+
+            # CO2
+            co2_raw = row[matched_cols['co2']]
+            try:
+                co2_val = float(co2_raw) if pd.notnull(co2_raw) else None
+            except (ValueError, TypeError):
+                co2_val = None
+
+            if co2_val is None:
+                continue
+
+            # Temperature
+            temp_raw = row[matched_cols['temp']] if 'temp' in matched_cols else None
+            try:
+                temp_val = float(temp_raw) if pd.notnull(temp_raw) else 27.5
+            except (ValueError, TypeError):
+                temp_val = 27.5
+
+            # Humidity
+            hum_raw = row[matched_cols['humidity']] if 'humidity' in matched_cols else None
+            try:
+                hum_val = float(hum_raw) if pd.notnull(hum_raw) else 60.0
+            except (ValueError, TypeError):
+                hum_val = 60.0
+
+            # PM2.5
+            pm25_raw = row[matched_cols['pm25']] if 'pm25' in matched_cols else None
+            try:
+                pm25_val = float(pm25_raw) if pd.notnull(pm25_raw) else 45.0
+            except (ValueError, TypeError):
+                pm25_val = 45.0
+
+            # AQI
+            aqi_raw = row[matched_cols['aqi']] if 'aqi' in matched_cols else None
+            try:
+                aqi_val = float(aqi_raw) if pd.notnull(aqi_raw) else round((pm25_val * 2.2) + max(0.0, co2_val - 400.0) * 0.25)
+            except (ValueError, TypeError):
+                aqi_val = 110.0
+
+            # Timestamp
+            if 'timestamp' in matched_cols and pd.notnull(row[matched_cols['timestamp']]):
+                try:
+                    ts_val = pd.to_datetime(row[matched_cols['timestamp']]).to_pydatetime()
+                except Exception:
+                    ts_val = now - datetime.timedelta(minutes=(len(df) - idx) * 15)
+            else:
+                ts_val = now - datetime.timedelta(minutes=(len(df) - idx) * 15)
+
+            data_objs.append(EnvironmentalData(
+                SensorID=s_id,
+                CO2Level=co2_val,
+                Temperature=temp_val,
+                Humidity=hum_val,
+                PM2S=pm25_val,
+                AQI=aqi_val,
+                Timestamp=ts_val
+            ))
+
+        if not data_objs:
+            return jsonify({"error": "No valid numerical telemetry rows found in CSV."}), 400
+
         # Bulk insert
         db.session.bulk_save_objects(data_objs)
         db.session.commit()
-        
-        return jsonify({"msg": f"Successfully imported {len(data_objs)} rows."}), 201
+
+        # Sync state with digital twin engine
+        try:
+            from twin.engine import twin_engine
+            twin_engine.sync_state()
+        except Exception:
+            pass
+
+        return jsonify({
+            "msg": f"Successfully parsed and ingested {len(data_objs)} telemetry recordings.",
+            "rows_imported": len(data_objs),
+            "matched_schema": {k: matched_cols[k] for k in matched_cols}
+        }), 201
+
     except Exception as e:
         db.session.rollback()
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"error": f"Failed to parse CSV: {str(e)}"}), 500

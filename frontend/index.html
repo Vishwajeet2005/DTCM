@@ -449,16 +449,25 @@
             <section id="page-reports-hub" class="tab-page">
                 <div class="form-grid-two-col">
                     <div class="black-card">
-                        <h3 style="font-size: 0.95rem; margin-bottom: 4px;">Telemetry Data Ingestion</h3>
-                        <p style="font-size: 0.75rem; color: var(--text-tertiary); margin-bottom: 16px;">Bulk import time-series recordings via comma-separated value format.</p>
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 4px;">
+                            <h3 style="font-size: 0.95rem;">Telemetry Data Ingestion</h3>
+                            <button type="button" class="btn-minimal" onclick="downloadCsvTemplate()" style="font-size: 0.7rem; padding: 4px 10px; display: flex; align-items: center; gap: 4px;">
+                                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                                <span>Download CSV Template</span>
+                            </button>
+                        </div>
+                        <p style="font-size: 0.75rem; color: var(--text-tertiary); margin-bottom: 16px;">Bulk import time-series recordings via comma-separated value format. Auto-detects column variations.</p>
 
-                        <div id="dropZone" style="border: 1px dashed var(--border-strong); border-radius: 3px; padding: 30px 16px; text-align: center; cursor: pointer;" onclick="document.getElementById('csvFileInput').click()">
+                        <div id="dropZone" style="border: 1px dashed var(--border-strong); border-radius: 3px; padding: 26px 16px; text-align: center; cursor: pointer; transition: border-color 0.15s;" onclick="document.getElementById('csvFileInput').click()">
                             <div style="font-size: 0.82rem; font-weight: 500; color: var(--text-primary); margin-bottom: 4px;">Click or Drag Sensor CSV File</div>
-                            <div style="font-size: 0.7rem; color: var(--text-muted);">Required columns: sensor_id, co2, temp, humidity, pm25, aqi, timestamp</div>
+                            <div style="font-size: 0.7rem; color: var(--text-muted); line-height: 1.4;">
+                                Supports standard headers: <span style="font-family: var(--font-mono); color: var(--text-secondary);">sensor_id, co2, temp, humidity, pm25, aqi, timestamp</span><br>
+                                (Also auto-maps <span style="font-family: var(--font-mono); color: var(--text-secondary);">CO2Level, SensorID, Temperature, PM2S, AQI, Timestamp</span>)
+                            </div>
                             <input type="file" id="csvFileInput" accept=".csv" style="display: none;" onchange="handleFileSelected(event)">
                         </div>
 
-                        <div id="fileSelectedInfo" style="margin-top: 10px; font-size: 0.76rem; color: var(--text-primary); display: none;"></div>
+                        <div id="fileSelectedInfo" style="margin-top: 10px; font-size: 0.76rem; color: var(--accent-blue); display: none;"></div>
 
                         <button class="btn-primary-action" style="margin-top: 14px;" onclick="uploadCsvFile()">
                             Upload & Parse Dataset

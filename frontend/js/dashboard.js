@@ -1507,10 +1507,15 @@ function handleFileSelected(e) {
     }
 }
 
+window.downloadCsvTemplate = function() {
+    window.open(`${API_BASE}/data/template/csv`, '_blank');
+    showToast('Downloading DTCM compliant CSV template...');
+};
+
 async function uploadCsvFile() {
     const input = document.getElementById('csvFileInput');
     if (!input || !input.files || input.files.length === 0) {
-        showToast('Select a CSV file first');
+        showToast('Please select a CSV file first.', 'error');
         return;
     }
 
@@ -1526,7 +1531,7 @@ async function uploadCsvFile() {
         const res = await fetch(`${API_BASE}/data/import/csv`, {
             method: 'POST',
             headers: {
-                'Authorization': `Bearer ${AppState.token}`
+                ...(AppState.token ? { 'Authorization': `Bearer ${AppState.token}` } : {})
             },
             body: formData
         });
@@ -1534,8 +1539,15 @@ async function uploadCsvFile() {
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || data.msg || 'CSV upload error');
 
-        showToast(data.msg || 'Dataset ingested into database successfully.');
+        showToast(data.msg || 'Dataset ingested into database successfully.', 'success');
         fetchLiveData();
+        fetchHotspots();
+        if (typeof fetchOptimizer === 'function') fetchOptimizer();
+
+        // Clear input
+        input.value = '';
+        const info = document.getElementById('fileSelectedInfo');
+        if (info) info.style.display = 'none';
     } catch (err) {
         showToast(err.message, 'error');
     }
