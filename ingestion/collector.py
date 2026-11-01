@@ -22,8 +22,57 @@ class DataCollector:
         self.Session = sessionmaker(bind=self.engine)
         
         self.poll_interval = getattr(config, 'SENSOR_POLL_INTERVAL_SECONDS', 60)
+        self.data_source = getattr(config, 'DATA_SOURCE', 'dataset').lower()
+        self.dataset_path = getattr(config, 'DATASET_PATH', '')
         self.last_weather_fetch = None
         self.weather_data = {} # Map location -> weather info
+        self.dataset_by_sensor = {}
+        self.dataset_indices = {}
+        self._init_dataset_reader()
+
+    def _init_dataset_reader(self):
+        if self.data_source == 'dataset' and self.dataset_path and os.path.exists(self.dataset_path):
+            try:
+                import pandas as pd
+                df = pd.read_csv(self.dataset_path)
+                col_map = {c.strip().lower(): c for c in df.columns}
+                sid_col = col_map.get('sensor_id') or col_map.get('sensorid') or 'sensor_id'
+                if sid_col in df.columns:
+                    for sid, group in df.groupby(sid_col):
+                        self.dataset_by_sensor[int(sid)] = group.to_dict('records')
+                        self.dataset_indices[int(sid)] = 0
+                else:
+                    self.dataset_by_sensor[1] = df.to_dict('records')
+                    self.dataset_indices[1] = 0
+                logger.info(f"Initialized Dataset Ingestion Engine from {self.dataset_path} ({len(df)} records).")
+            except Exception as e:
+                logger.warning(f"Could not load dataset from {self.dataset_path}: {e}")
+
+    def get_reading_from_dataset(self, sensor_id: int) -> dict:
+        records = self.dataset_by_sensor.get(sensor_id)
+        if not records:
+            records = self.dataset_by_sensor.get(1, [])
+        if not records:
+            return None
+
+        idx = self.dataset_indices.get(sensor_id, 0)
+        row = records[idx % len(records)]
+        self.dataset_indices[sensor_id] = (idx + 1) % len(records)
+
+        co2 = float(row.get('co2') or row.get('CO2Level') or row.get('co2_level') or 425.0)
+        temp = float(row.get('temp') or row.get('Temperature') or row.get('temperature') or 26.0)
+        hum = float(row.get('humidity') or row.get('Humidity') or 55.0)
+        pm25 = float(row.get('pm25') or row.get('PM2S') or 45.0)
+        aqi = float(row.get('aqi') or row.get('AQI') or 110.0)
+
+        return {
+            "sensor_id": sensor_id,
+            "co2": round(co2, 2),
+            "temp": round(temp, 1),
+            "humidity": round(hum, 1),
+            "pm25": round(pm25, 1),
+            "aqi": round(aqi, 1)
+        }
 
     def generate_synthetic_reading(self, sensor_id: int) -> dict:
         import random
@@ -42,7 +91,7 @@ class DataCollector:
             "humidity": humidity,
             "pm25": pm25,
             "aqi": aqi,
-            "timestamp": datetime.datetime.utcnow().isoformat()
+            "timestamp": datetime.datetime.now(datetime.timezone.utc).isoformat()
         }
 
     STATION_COORDINATES = {
@@ -118,9 +167,33 @@ class DataCollector:
             # Get all active sensors
             sensors = session.query(SensorData).filter_by(Status='Active').all()
             
+            now = datetime.datetime.now(datetime.timezone.utc).replace(tzinfo=None)
+
+            # 1. DATASET MODE: Read directly from dataset CSV without external API calls
+            if self.data_source == 'dataset' and self.dataset_by_sensor:
+                for sensor in sensors:
+                    payload = self.get_reading_from_dataset(sensor.SensorID)
+                    if payload:
+                        data_entry = EnvironmentalData(
+                            SensorID=sensor.SensorID,
+                            CO2Level=payload["co2"],
+                            Temperature=payload["temp"],
+                            Humidity=payload["humidity"],
+                            PM2S=payload["pm25"],
+                            AQI=payload["aqi"],
+                            Timestamp=now
+                        )
+                        session.add(data_entry)
+                        session.flush()
+                        from alerts.manager import AlertManager
+                        AlertManager.evaluate(session, data_entry)
+                session.commit()
+                logger.info(f"Ingested telemetry for {len(sensors)} stations directly from dataset.")
+                return
+
+            # 2. API / HARDWARE GATEWAY MODE:
             # Check if we need to update weather (every 15 mins)
             update_weather = False
-            now = datetime.datetime.utcnow()
             if not self.last_weather_fetch or (now - self.last_weather_fetch).total_seconds() >= 900:
                 update_weather = True
                 self.last_weather_fetch = now
@@ -157,14 +230,11 @@ class DataCollector:
                         Humidity=weather.get("humidity", 50.0),
                         PM2S=pm25,
                         AQI=aqi,
-                        Timestamp=datetime.datetime.utcnow()
+                        Timestamp=now
                     )
                     session.add(data_entry)
-                    
-                    # After insert trigger for alerts could be here, or in a DB trigger, or SQLAlchemy event.
-                    # We will implement it in a separate alerts/manager.py that listens to DB or is called here.
+                    session.flush()
                     from alerts.manager import AlertManager
-                    session.flush() # get ID
                     AlertManager.evaluate(session, data_entry)
                     
             session.commit()

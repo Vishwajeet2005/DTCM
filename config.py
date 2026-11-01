@@ -27,6 +27,10 @@ class Config:
     # ML
     MIN_ACCEPTABLE_R2 = float(os.environ.get("MIN_ACCEPTABLE_R2", 0.80))
 
+    # Data Ingestion Source ("dataset" or "api")
+    DATA_SOURCE = os.environ.get("DATA_SOURCE", "dataset")
+    DATASET_PATH = os.environ.get("DATASET_PATH", os.path.join(BASE_DIR, "data", "cpcb_indian_stations_telemetry.csv"))
+
     # APIs & Collector
     OPENWEATHERMAP_API_KEY = os.environ.get("OPENWEATHERMAP_API_KEY", "")
     OPENWEATHERMAP_BASE_URL = os.environ.get("OPENWEATHERMAP_BASE_URL", "https://api.openweathermap.org/data/2.5")

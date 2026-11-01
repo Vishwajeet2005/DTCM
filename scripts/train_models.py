@@ -27,8 +27,17 @@ def run_training_pipeline():
     df = pd.read_sql(query, engine)
     
     if len(df) == 0:
-        logger.error("No data found in database. Run generate_synthetic_data.py first.")
-        return
+        if os.path.exists(config.DATASET_PATH):
+            logger.info(f"Database table empty. Loading training records directly from dataset CSV: {config.DATASET_PATH}")
+            df = pd.read_csv(config.DATASET_PATH)
+            rename_map = {
+                'co2': 'CO2Level', 'temp': 'Temperature', 'humidity': 'Humidity',
+                'pm25': 'PM2S', 'aqi': 'AQI', 'timestamp': 'Timestamp', 'sensor_id': 'SensorID'
+            }
+            df = df.rename(columns={k: v for k, v in rename_map.items() if k in df.columns})
+        else:
+            logger.error("No data found in database or dataset file. Run scripts/load_dataset.py first.")
+            return
         
     logger.info(f"Loaded {len(df)} rows from database.")
     

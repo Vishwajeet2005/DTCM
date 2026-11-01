@@ -1,0 +1,101 @@
+sensor_id,location,co2,temp,humidity,pm25,aqi,timestamp
+3,"Peenya Industrial Area, Bengaluru",419.71,25.7,47.0,40.5,94.0,2026-10-27 06:51:47.316511
+4,"Okhla Industrial Area Phase-III, New Delhi",439.77,27.7,42.0,52.1,116.0,2026-10-27 06:51:47.317246
+5,"Manali Petrochemical Corridor, Chennai",428.18,30.9,51.0,46.2,105.0,2026-10-27 06:51:47.318544
+6,"Sector V, Salt Lake, Kolkata",429.69,34.2,52.0,45.5,103.0,2026-10-27 06:51:47.319288
+1,"Anand Vihar ISBT, New Delhi",449.99,27.7,42.0,59.6,130.0,2026-10-27 06:52:47.330919
+2,"Bandra-Kurla Complex (BKC), Mumbai",420.68,35.6,22.0,42.9,98.0,2026-10-27 06:52:47.346536
+3,"Peenya Industrial Area, Bengaluru",413.52,25.7,47.0,38.4,90.0,2026-10-27 06:52:47.351383
+4,"Okhla Industrial Area Phase-III, New Delhi",439.37,27.7,42.0,51.3,114.0,2026-10-27 06:52:47.357670
+5,"Manali Petrochemical Corridor, Chennai",427.26,30.9,51.0,47.9,108.0,2026-10-27 06:52:47.361598
+6,"Sector V, Salt Lake, Kolkata",434.39,34.2,52.0,45.9,104.0,2026-10-27 06:52:47.366858
+1,"Anand Vihar ISBT, New Delhi",446.24,27.7,42.0,61.2,132.0,2026-10-27 06:53:47.387720
+2,"Bandra-Kurla Complex (BKC), Mumbai",420.08,35.6,22.0,41.0,95.0,2026-10-27 06:53:47.400445
+3,"Peenya Industrial Area, Bengaluru",415.36,25.7,47.0,39.4,92.0,2026-10-27 06:53:47.403048
+4,"Okhla Industrial Area Phase-III, New Delhi",440.74,27.7,42.0,54.0,119.0,2026-10-27 06:53:47.404546
+5,"Manali Petrochemical Corridor, Chennai",424.21,30.9,51.0,44.0,100.0,2026-10-27 06:53:47.406023
+6,"Sector V, Salt Lake, Kolkata",434.18,34.2,52.0,44.4,102.0,2026-10-27 06:53:47.407454
+1,"Anand Vihar ISBT, New Delhi",446.56,27.7,42.0,57.0,125.0,2026-10-27 06:54:47.417970
+2,"Bandra-Kurla Complex (BKC), Mumbai",421.2,35.6,22.0,40.6,94.0,2026-10-27 06:54:47.433930
+3,"Peenya Industrial Area, Bengaluru",415.28,25.7,47.0,37.1,88.0,2026-10-27 06:54:47.436658
+4,"Okhla Industrial Area Phase-III, New Delhi",437.85,27.7,42.0,53.2,118.0,2026-10-27 06:54:47.439475
+5,"Manali Petrochemical Corridor, Chennai",429.64,30.9,51.0,43.5,100.0,2026-10-27 06:54:47.441144
+6,"Sector V, Salt Lake, Kolkata",431.64,34.2,52.0,46.9,106.0,2026-10-27 06:54:47.442842
+1,"Anand Vihar ISBT, New Delhi",448.05,27.9,41.0,56.8,125.0,2026-10-27 06:55:51.264413
+2,"Bandra-Kurla Complex (BKC), Mumbai",423.24,36.2,21.0,40.5,94.0,2026-10-27 06:55:56.327878
+3,"Peenya Industrial Area, Bengaluru",419.1,26.0,46.0,38.8,91.0,2026-10-27 06:56:00.066417
+4,"Okhla Industrial Area Phase-III, New Delhi",438.41,27.8,42.0,55.2,121.0,2026-10-27 06:56:03.763471
+5,"Manali Petrochemical Corridor, Chennai",427.92,31.0,51.0,45.8,104.0,2026-10-27 06:56:07.244754
+6,"Sector V, Salt Lake, Kolkata",434.65,34.4,51.0,48.3,109.0,2026-10-27 06:56:11.045097
+1,"Anand Vihar ISBT, New Delhi",447.77,27.9,41.0,57.9,127.0,2026-10-27 06:57:11.069417
+2,"Bandra-Kurla Complex (BKC), Mumbai",418.58,36.2,21.0,42.5,97.0,2026-10-27 06:57:11.081492
+3,"Peenya Industrial Area, Bengaluru",416.39,26.0,46.0,37.2,88.0,2026-10-27 06:57:11.084363
+4,"Okhla Industrial Area Phase-III, New Delhi",439.29,27.8,42.0,50.6,113.0,2026-10-27 06:57:11.086177
+5,"Manali Petrochemical Corridor, Chennai",430.84,31.0,51.0,43.2,99.0,2026-10-27 06:57:11.087455
+6,"Sector V, Salt Lake, Kolkata",432.66,34.4,51.0,48.7,109.0,2026-10-27 06:57:11.088568
+1,"Anand Vihar ISBT, New Delhi",444.81,27.9,41.0,56.5,124.0,2026-10-27 06:58:11.098235
+2,"Bandra-Kurla Complex (BKC), Mumbai",422.87,36.2,21.0,42.3,97.0,2026-10-27 06:58:11.104828
+3,"Peenya Industrial Area, Bengaluru",415.99,26.0,46.0,39.7,92.0,2026-10-27 06:58:11.108865
+4,"Okhla Industrial Area Phase-III, New Delhi",437.17,27.8,42.0,52.2,116.0,2026-10-27 06:58:11.111658
+5,"Manali Petrochemical Corridor, Chennai",429.34,31.0,51.0,45.5,103.0,2026-10-27 06:58:11.113735
+6,"Sector V, Salt Lake, Kolkata",434.68,34.4,51.0,44.4,102.0,2026-10-27 06:58:11.115692
+1,"Anand Vihar ISBT, New Delhi",446.54,27.9,41.0,58.9,128.0,2026-10-27 06:59:11.128689
+2,"Bandra-Kurla Complex (BKC), Mumbai",421.64,36.2,21.0,41.2,95.0,2026-10-27 06:59:11.143097
+3,"Peenya Industrial Area, Bengaluru",414.5,26.0,46.0,37.4,88.0,2026-10-27 06:59:11.145543
+4,"Okhla Industrial Area Phase-III, New Delhi",440.57,27.8,42.0,54.9,121.0,2026-10-27 06:59:11.147426
+5,"Manali Petrochemical Corridor, Chennai",426.29,31.0,51.0,45.6,103.0,2026-10-27 06:59:11.149426
+6,"Sector V, Salt Lake, Kolkata",433.62,34.4,51.0,48.8,110.0,2026-10-27 06:59:11.150857
+1,"Anand Vihar ISBT, New Delhi",444.86,27.9,41.0,59.3,129.0,2026-10-27 07:00:11.162193
+2,"Bandra-Kurla Complex (BKC), Mumbai",419.89,36.2,21.0,41.6,96.0,2026-10-27 07:00:11.174661
+3,"Peenya Industrial Area, Bengaluru",420.22,26.0,46.0,38.5,90.0,2026-10-27 07:00:11.176806
+4,"Okhla Industrial Area Phase-III, New Delhi",442.77,27.8,42.0,53.7,119.0,2026-10-27 07:00:11.178766
+5,"Manali Petrochemical Corridor, Chennai",429.14,31.0,51.0,43.5,100.0,2026-10-27 07:00:11.180574
+6,"Sector V, Salt Lake, Kolkata",428.55,34.4,51.0,48.9,109.0,2026-10-27 07:00:11.182247
+1,"Anand Vihar ISBT, New Delhi",449.68,27.9,41.0,57.7,126.0,2026-10-27 07:01:11.192474
+2,"Bandra-Kurla Complex (BKC), Mumbai",420.67,36.2,21.0,41.8,96.0,2026-10-27 07:01:11.205631
+3,"Peenya Industrial Area, Bengaluru",419.32,26.0,46.0,37.8,89.0,2026-10-27 07:01:11.210956
+4,"Okhla Industrial Area Phase-III, New Delhi",437.09,27.8,42.0,54.9,121.0,2026-10-27 07:01:11.213714
+5,"Manali Petrochemical Corridor, Chennai",429.67,31.0,51.0,46.0,104.0,2026-10-27 07:01:11.216000
+6,"Sector V, Salt Lake, Kolkata",433.39,34.4,51.0,46.6,106.0,2026-10-27 07:01:11.218122
+1,"Anand Vihar ISBT, New Delhi",446.61,27.9,41.0,58.6,128.0,2026-10-27 07:02:11.231224
+2,"Bandra-Kurla Complex (BKC), Mumbai",420.86,36.2,21.0,43.9,100.0,2026-10-27 07:02:11.245005
+3,"Peenya Industrial Area, Bengaluru",414.11,26.0,46.0,38.8,91.0,2026-10-27 07:02:11.247465
+4,"Okhla Industrial Area Phase-III, New Delhi",442.85,27.8,42.0,52.5,117.0,2026-10-27 07:02:11.249553
+5,"Manali Petrochemical Corridor, Chennai",425.03,31.0,51.0,45.6,103.0,2026-10-27 07:02:11.251596
+6,"Sector V, Salt Lake, Kolkata",430.88,34.4,51.0,48.3,108.0,2026-10-27 07:02:11.254736
+1,"Anand Vihar ISBT, New Delhi",450.7,27.9,41.0,57.0,125.0,2026-10-27 07:03:11.272703
+2,"Bandra-Kurla Complex (BKC), Mumbai",421.86,36.2,21.0,43.4,99.0,2026-10-27 07:03:11.289837
+3,"Peenya Industrial Area, Bengaluru",415.61,26.0,46.0,39.6,92.0,2026-10-27 07:03:11.293806
+4,"Okhla Industrial Area Phase-III, New Delhi",441.69,27.8,42.0,52.5,117.0,2026-10-27 07:03:11.295817
+5,"Manali Petrochemical Corridor, Chennai",424.91,31.0,51.0,43.7,100.0,2026-10-27 07:03:11.298574
+6,"Sector V, Salt Lake, Kolkata",432.8,34.4,51.0,48.3,109.0,2026-10-27 07:03:11.300675
+1,"Anand Vihar ISBT, New Delhi",445.06,27.9,41.0,60.6,131.0,2026-10-27 07:04:11.309743
+2,"Bandra-Kurla Complex (BKC), Mumbai",423.97,36.2,21.0,41.9,97.0,2026-10-27 07:04:11.325290
+3,"Peenya Industrial Area, Bengaluru",414.39,26.0,46.0,38.4,90.0,2026-10-27 07:04:11.328540
+4,"Okhla Industrial Area Phase-III, New Delhi",438.49,27.8,42.0,55.2,121.0,2026-10-27 07:04:11.330705
+5,"Manali Petrochemical Corridor, Chennai",427.8,31.0,51.0,44.5,101.0,2026-10-27 07:04:11.332541
+6,"Sector V, Salt Lake, Kolkata",434.76,34.4,51.0,48.1,108.0,2026-10-27 07:04:11.334220
+1,"Anand Vihar ISBT, New Delhi",449.05,27.9,41.0,57.7,126.0,2026-10-27 07:05:11.351713
+2,"Bandra-Kurla Complex (BKC), Mumbai",421.96,36.2,21.0,41.6,96.0,2026-10-27 07:05:11.357761
+3,"Peenya Industrial Area, Bengaluru",418.86,26.0,46.0,40.5,94.0,2026-10-27 07:05:11.359574
+4,"Okhla Industrial Area Phase-III, New Delhi",441.7,27.8,42.0,50.9,114.0,2026-10-27 07:05:11.361074
+5,"Manali Petrochemical Corridor, Chennai",425.65,31.0,51.0,44.9,102.0,2026-10-27 07:05:11.363338
+6,"Sector V, Salt Lake, Kolkata",430.2,34.4,51.0,45.5,103.0,2026-10-27 07:05:11.365545
+1,"Anand Vihar ISBT, New Delhi",445.52,27.9,41.0,60.6,131.0,2026-10-27 07:06:11.376174
+2,"Bandra-Kurla Complex (BKC), Mumbai",421.52,36.2,21.0,41.6,96.0,2026-10-27 07:06:11.393745
+3,"Peenya Industrial Area, Bengaluru",414.91,26.0,46.0,36.7,87.0,2026-10-27 07:06:11.398744
+4,"Okhla Industrial Area Phase-III, New Delhi",443.38,27.8,42.0,51.2,114.0,2026-10-27 07:06:11.400909
+5,"Manali Petrochemical Corridor, Chennai",427.95,31.0,51.0,45.6,103.0,2026-10-27 07:06:11.402554
+6,"Sector V, Salt Lake, Kolkata",431.26,34.4,51.0,46.3,105.0,2026-10-27 07:06:11.404067
+1,"Anand Vihar ISBT, New Delhi",446.71,27.9,41.0,60.3,131.0,2026-10-27 07:07:11.417476
+2,"Bandra-Kurla Complex (BKC), Mumbai",418.37,36.2,21.0,43.0,98.0,2026-10-27 07:07:11.429622
+3,"Peenya Industrial Area, Bengaluru",415.1,26.0,46.0,39.2,91.0,2026-10-27 07:07:11.432627
+4,"Okhla Industrial Area Phase-III, New Delhi",438.06,27.8,42.0,54.1,119.0,2026-10-27 07:07:11.436351
+5,"Manali Petrochemical Corridor, Chennai",425.88,31.0,51.0,46.4,105.0,2026-10-27 07:07:11.438053
+6,"Sector V, Salt Lake, Kolkata",434.22,34.4,51.0,45.8,104.0,2026-10-27 07:07:11.439583
+1,"Anand Vihar ISBT, New Delhi",448.72,27.9,41.0,61.3,133.0,2026-10-27 07:08:11.448899
+2,"Bandra-Kurla Complex (BKC), Mumbai",420.65,36.2,21.0,44.0,100.0,2026-10-27 07:08:11.461016
+3,"Peenya Industrial Area, Bengaluru",418.4,26.0,46.0,37.5,88.0,2026-10-27 07:08:11.464371
+4,"Okhla Industrial Area Phase-III, New Delhi",439.84,27.8,42.0,52.0,116.0,2026-10-27 07:08:11.466529
+5,"Manali Petrochemical Corridor, Chennai",427.67,31.0,51.0,47.7,107.0,2026-10-27 07:08:11.468920
+6,"Sector V, Salt Lake, Kolkata",434.2,34.4,51.0,47.7,108.0,2026-10-27 07:08:11.470767
