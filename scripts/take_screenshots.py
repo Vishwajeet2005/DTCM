@@ -95,7 +95,7 @@ def capture_features():
         ]
 
         try:
-            subprocess.run(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=12)
+            subprocess.run(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=25)
             # Give short moment for file flush
             time.sleep(1.0)
             if os.path.exists(temp_file) and os.path.getsize(temp_file) > 1000:

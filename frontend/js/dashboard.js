@@ -664,10 +664,12 @@ function autoScaleLiveStreamY(chart) {
     const max = Math.max(...valid);
     const span = max - min;
     
-    // Snug minimized range: at least 1.5 ppm buffer so variations are clearly pronounced
+    // Snug minimized range: strictly force min & max so variations are dynamically pronounced
     const pad = Math.max(1.5, span * 0.15);
-    chart.options.scales.y.suggestedMin = Math.floor(min - pad);
-    chart.options.scales.y.suggestedMax = Math.ceil(max + pad);
+    chart.options.scales.y.min = Math.floor(min - pad);
+    chart.options.scales.y.max = Math.ceil(max + pad);
+    delete chart.options.scales.y.suggestedMin;
+    delete chart.options.scales.y.suggestedMax;
 }
 
 let currentChartRange = '1h';
@@ -1029,8 +1031,8 @@ window.loadCityHistoryChart = async function(sensorId) {
                     },
                     y: {
                         grid: { color: '#1c1c21' },
-                        suggestedMin: Math.floor(minVal - Math.max(2.0, (maxVal - minVal) * 0.15)),
-                        suggestedMax: Math.ceil(maxVal + Math.max(2.0, (maxVal - minVal) * 0.15))
+                        min: Math.floor(minVal - Math.max(2.0, (maxVal - minVal) * 0.15)),
+                        max: Math.ceil(maxVal + Math.max(2.0, (maxVal - minVal) * 0.15))
                     }
                 }
             }
