@@ -30,43 +30,88 @@ Urban carbon emissions and atmospheric stagnation represent one of the most crit
 
 ## 2. Frontend Interface Showcase (Localhost Execution)
 
-The DTCM system runs locally at `http://localhost:5000/`. Below are the documented interfaces demonstrating the operational capabilities of the platform:
+The DTCM system runs locally at `http://localhost:5000/`. Below is a comprehensive visual walkthrough documenting all primary operational features and interface modules:
 
 ---
 
-### 2.1 Main Digital Twin Telemetry & Anomaly Dashboard
-*Route: `http://localhost:5000/dashboard`*
+### 2.1 Continuous $\text{CO}_2$ Concentration Stream & Dynamic Auto-Scaling
+*Primary Telemetry Command Center*
 
-![DTCM Main Dashboard](docs/screenshots/dashboard_main.png)
+![Continuous CO2 Stream & Real-Time Edge Nodes](docs/screenshots/dashboard_main.png)
 
-> **Key Capabilities Displayed:**
-> - **Continuous $\text{CO}_2$ Concentration Stream:** Real-time Chart.js line graph featuring dynamically auto-scaled Y-axes (narrowing to a snug $\pm 1.5\text{ ppm}$ bounding box) to clearly visualize subtle diurnal rises, rush-hour peaks, and nightly dips across 1H, 6H, and 24H intervals.
-> - **Geospatial Station Map:** Interactive Leaflet GIS tile map rendering color-coded status beacons across New Delhi (Anand Vihar, Okhla), Mumbai (BKC), Bengaluru (Peenya), Chennai (Manali), and Kolkata (Salt Lake).
-> - **National Edge Node Telemetry Cards:** Real-time sensor readout stream presenting instant $\text{CO}_2$, temperature, relative humidity, $PM_{2.5}$, and calculated CPCB NAQI values.
-> - **Top Hotspot Surveillance:** Dynamic hazard rank identifying nodes currently exceeding critical environmental thresholds ($> 450\text{ ppm}$).
+> **Core Capabilities:** Real-time Chart.js line graph featuring dynamically auto-scaled Y-axes (narrowing to a snug $\pm 1.5\text{ ppm}$ bounding box) to clearly visualize subtle diurnal rises, rush-hour peaks, and nightly dips across 1H, 6H, and 24H intervals. Displays national edge nodes and real-time hotspot surveillance.
 
 ---
 
-### 2.2 Public Environmental Engagement & Mission Portal
-*Route: `http://localhost:5000/`*
+### 2.2 Station Deep-Dive & Demographics Modal with 24-Hour Diurnal Curve
+*Microclimate Environmental Intelligence*
 
-![DTCM Landing Page](docs/screenshots/landing_page.png)
+![Station Deep-Dive & Demographics Modal](docs/screenshots/feature_city_modal.png)
 
-> **Key Capabilities Displayed:**
-> - **Mission Overview:** High-level narrative introducing the public to municipal carbon reduction goals and climate transparency.
-> - **Architectural Highlights:** Visual breakdown of the IoT ingestion pipeline, machine learning regression models, and digital twin simulation mechanics.
-> - **Direct Platform Navigation:** Seamless gateway directing authenticated personnel to the analytical dashboard and public citizens to open environmental data.
+> **Core Capabilities:** Clicking any station marker on the map, sensor feed, or hotspot table triggers the City Intelligence modal, displaying localized population density, dominant emission drivers, microclimatic classification, and the 24-hour diurnal carbon curve.
 
 ---
 
-### 2.3 Role-Based Access Control (RBAC) Authentication Portal
-*Route: `http://localhost:5000/login`*
+### 2.3 National Geospatial Sensor Grid (GIS India Mapping)
+*Interactive Multi-Station Geography*
 
-![DTCM Authentication Portal](docs/screenshots/login_portal.png)
+![Geospatial Sensor Grid & Municipal Hotspots](docs/screenshots/feature_geospatial_map.png)
 
-> **Key Capabilities Displayed:**
-> - **Secure JWT Token Generation:** Cryptographic bcrypt verification protecting sensitive operational simulation endpoints, model retraining APIs, and report generation engines.
-> - **Pre-Configured Demo Personas:** Instant single-click authentication for Administrators, Authority Leads, IIT Researchers, and Citizens to facilitate comprehensive committee evaluation.
+> **Core Capabilities:** Visualizes the spatial distribution of monitoring nodes across northern, western, southern, and eastern India with custom dark obsidian map styling, pulsing NAQI color-coded status halos, and interactive station inspection popups.
+
+---
+
+### 2.4 Autoregressive Machine Learning Forecasting Engine
+*Predictive Trajectories & Uncertainty Bounds*
+
+![Autoregressive Forecasting & Uncertainty Envelopes](docs/screenshots/feature_ai_forecasting.png)
+
+> **Core Capabilities:** Generates predictive carbon trajectories across 24 Hours, 7 Days, and 30 Days accompanied by 95th percentile upper and 5th percentile lower uncertainty bounds, with live model metrics ($R^2 = 0.89$, $\text{MAE} = 3.64\text{ ppm}$).
+
+---
+
+### 2.5 Digital Twin Intervention Simulation Sandbox
+*Scenario Modeling & Carbon Abatement Curves*
+
+![Digital Twin Intervention Simulation & Abatement Curves](docs/screenshots/feature_digital_twin_sandbox.png)
+
+> **Core Capabilities:** Interactive policy sliders modulating Traffic Reduction %, Urban Greening Canopy %, and Industrial Scrubbing. Overlays the projected mitigated curve against the unmitigated baseline in real time, calculating mass carbon abatement in kg/day.
+
+---
+
+### 2.6 Carbon Capture Prioritization Matrix (DAC Optimizer)
+*Algorithmic Hardware Deployment Optimization*
+
+![Carbon Capture Prioritization Matrix & Green Infrastructure](docs/screenshots/feature_capture_optimizer.png)
+
+> **Core Capabilities:** Ranks stations by carbon severity, particulate co-pollutants, and population exposure risk. Suggests optimal Direct Air Capture (DAC) unit capacities and customized microclimate action directives.
+
+---
+
+### 2.7 Compliance Hub, Template Download & CSV Ingestion
+*Data Loading & Flexible Schema Normalization*
+
+![Compliance Center, Template Download & CSV Ingestion](docs/screenshots/feature_csv_ingestion_and_reports.png)
+
+> **Core Capabilities:** Dedicated **"Download CSV Template"** button for sample downloads, automated schema normalizer supporting lowercase and PascalCase/exported headers, and automated one-click PDF/CSV compliance report generation.
+
+---
+
+### 2.8 Public Environmental Engagement & Mission Portal
+*Citizen Climate Transparency*
+
+![Public Climate Mission & Environmental Transparency Portal](docs/screenshots/landing_page.png)
+
+> **Core Capabilities:** Citizen-facing educational portal introducing municipal net-zero goals, system architecture, and open environmental data access.
+
+---
+
+### 2.9 Role-Based Access Control (RBAC) Authentication Portal
+*Enterprise Security & User Access Governance*
+
+![Role-Based Access Control Authentication](docs/screenshots/login_portal.png)
+
+> **Core Capabilities:** Cryptographic bcrypt verification protecting sensitive operational simulation endpoints, model retraining APIs, and report generation engines across Administrator, Authority, Researcher, and Citizen roles.
 
 ---
 

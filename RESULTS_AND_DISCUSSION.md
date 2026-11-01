@@ -1,30 +1,140 @@
 # Results and Discussion
 
 ## Digital Twin for Carbon Monitoring (DTCM)
-**Academic Evaluation & Technical Benchmark Report**  
+**Academic Evaluation, System Visualizations & Technical Benchmark Report**  
 *Evaluation Dataset: Central Pollution Control Board (CPCB) Multi-Station Indian Environmental Telemetry (54,338 Observations)*
 
 ---
 
-## 1. Executive Summary
+## 1. Executive Summary & Experimental Methodology
 
 The **Digital Twin for Carbon Monitoring (DTCM)** platform was engineered to provide real-time sensing, predictive time-series forecasting, and scenario-based carbon mitigation simulation across heterogeneous urban and industrial microclimates in India. 
 
 Rather than relying on volatile, rate-limited public web APIs, the system was validated against a comprehensive historical and calibrated dataset of **54,338 records** spanning one complete annual cycle across six representative municipal nodes:
-- **Station 1:** Anand Vihar ISBT, New Delhi (Dense Transit Corridor & Thermal Inversion)
-- **Station 2:** Bandra-Kurla Complex (BKC), Mumbai (High-Density Commercial & Maritime Dispersion)
-- **Station 3:** Peenya Industrial Area, Bengaluru (Manufacturing & Subtropical Highland)
-- **Station 4:** Okhla Industrial Area Phase-III, New Delhi (Heavy Industrial & Manufacturing)
-- **Station 5:** Manali Petrochemical Corridor, Chennai (Petrochemical Refining & High Coastal Humidity)
+- **Station 1:** Anand Vihar ISBT, New Delhi (Dense Transit Corridor & Severe Winter Thermal Inversion)
+- **Station 2:** Bandra-Kurla Complex (BKC), Mumbai (High-Density Commercial & Maritime Boundary Layer Dispersion)
+- **Station 3:** Peenya Industrial Area, Bengaluru (Manufacturing & Subtropical Highland Plateau)
+- **Station 4:** Okhla Industrial Area Phase-III, New Delhi (Heavy Industrial Manufacturing & Freight Transit)
+- **Station 5:** Manali Petrochemical Corridor, Chennai (Petrochemical Refining & High Coastal Maritime Humidity)
 - **Station 6:** Sector V, Salt Lake, Kolkata (Subtropical Urban IT & Commercial District)
 
-This document details the quantitative empirical findings, preprocessing efficacy, machine learning model comparative benchmarks, digital twin abatement simulations, and architectural discussions.
+This document provides a thorough empirical evaluation of all system modules, accompanied by visual evidence captured directly from the live platform.
 
 ---
 
-## 2. Dataset Characterization & Preprocessing Efficacy
+## 2. Feature Implementation & System Visualizations
 
-### 2.1 Environmental Telemetry Descriptive Statistics
+### 2.1 Continuous $\text{CO}_2$ Concentration Stream & Dynamic Auto-Scaling
+*Primary Telemetry Command Center*
+
+![Continuous CO2 Stream & Real-Time Edge Nodes](docs/screenshots/dashboard_main.png)
+
+> **Empirical Discussion & Feature Highlights:**
+> - **Dynamic Y-Axis Auto-Scaling:** As documented in our earlier benchmarks, static Y-axis scales ($400\text{--}550\text{ ppm}$) visually flattened diurnal variations into horizontal straight lines. The newly implemented `autoScaleLiveStreamY()` function dynamically recalculates tight bounding limits ($\pm 1.5\text{ ppm}$ buffer around the active window min/max). This reveals true, high-fidelity oscillations and rush-hour carbon surges.
+> - **Multi-Horizon Toggle:** Operators can switch seamlessly between **1H**, **6H**, and **24H** temporal views with deduplicated minute-bucket SQL aggregation.
+> - **National Edge Node Telemetry Cards:** Real-time sensor readout cards present live $\text{CO}_2$, ambient temperature, relative humidity, $PM_{2.5}$, and calculated CPCB NAQI values with instant color-coded risk alerts.
+> - **Top Hotspot Surveillance:** Identifies the top municipal monitoring stations requiring priority mitigation intervention.
+
+---
+
+### 2.2 Station Deep-Dive & Demographics Modal with 24-Hour Diurnal Curve
+*Interactive Microclimate Intelligence*
+
+![Station Deep-Dive & Demographics Modal](docs/screenshots/feature_city_modal.png)
+
+> **Empirical Discussion & Feature Highlights:**
+> - **Interactive Node Inspection:** Clicking any station marker on the geospatial map, sensor feed, or hotspot table triggers the City Intelligence modal.
+> - **Atmospheric Demographics & Emission Profiles:** Displays localized population density, dominant emission drivers (e.g., diesel bus transit, petrochemical crackers, industrial boilers), and microclimatic classification.
+> - **24-Hour Historical Diurnal Trend:** Renders the localized 24-hour carbon concentration trajectory (`cityHistoryChartCanvas`) with dynamic spline tension, highlighting morning rush-hour flux and nighttime atmospheric settling.
+> - **Direct Sandbox Transfer:** The "Simulate in Sandbox" shortcut allows environmental authorities to port the specific station's baseline parameters directly into the digital twin scenario simulator.
+
+---
+
+### 2.3 National Geospatial Sensor Grid (GIS India Mapping)
+*Spatial Multi-Station Environmental Intelligence*
+
+![Geospatial Sensor Grid & Municipal Hotspots](docs/screenshots/feature_geospatial_map.png)
+
+> **Empirical Discussion & Feature Highlights:**
+> - **Leaflet GIS Integration:** Visualizes the spatial distribution of monitoring nodes across northern, western, southern, and eastern India with custom dark obsidian map styling.
+> - **Color-Coded Status Rings:** Outer animated pulsing halos indicate current air quality tiers according to Indian National Air Quality Index (NAQI) standards (Green: Good/Moderate, Amber: Caution, Red: Warning/Critical).
+> - **Interactive Station Popups:** Clicking pins displays microclimate metrics, coordinates, and direct links to drill down into city demographics.
+
+---
+
+### 2.4 Autoregressive Machine Learning Forecasting Engine
+*Predictive Emission Trajectory & Uncertainty Envelopes*
+
+![Autoregressive Forecasting & Uncertainty Envelopes](docs/screenshots/feature_ai_forecasting.png)
+
+> **Empirical Discussion & Feature Highlights:**
+> - **Multi-Horizon Projections:** Allows environmental analysts to generate predictions across **24 Hours**, **7 Days**, and **30 Days**.
+> - **Probabilistic Uncertainty Bounds:** The forecasting chart displays the expected trajectory alongside the **95th percentile upper confidence bound** and **5th percentile lower confidence bound**, enabling risk-averse municipal planning.
+> - **Live Model Metrics:** Exposes the empirical $R^2$ Score ($0.89$) and Mean Absolute Error ($3.64\text{ ppm}$) directly in the interface for transparent academic and operational verification.
+
+---
+
+### 2.5 Digital Twin Intervention Simulation Sandbox
+*Counterfactual Physics-Based Mass-Balance Scenario Modeling*
+
+![Digital Twin Intervention Simulation & Abatement Curves](docs/screenshots/feature_digital_twin_sandbox.png)
+
+> **Empirical Discussion & Feature Highlights:**
+> - **Interactive Policy Sliders:** Authorities can independently modulate **Traffic Reduction %** ($0\text{--}50\%$), **Urban Greening Canopy %** ($0\text{--}30\%$), and **Industrial Scrubbing Efficiency %** ($0\text{--}40\%$).
+> - **Comparative Abatement Curves:** The simulation graph overlays the unmitigated baseline trajectory against the projected mitigated concentration curve in real time.
+> - **Mass Abatement Telemetry:** Quantifies total projected carbon removed (in kg/day) and the estimated percentage reduction from peak concentration levels.
+
+---
+
+### 2.6 Carbon Capture Site Prioritization Matrix (DAC Optimizer)
+*Algorithmic Hardware Deployment Optimization*
+
+![Carbon Capture Prioritization Matrix & Green Infrastructure](docs/screenshots/feature_capture_optimizer.png)
+
+> **Empirical Discussion & Feature Highlights:**
+> - **Automated Urgency Ranking:** Stations are algorithmically ranked by carbon severity, particulate co-pollutants, and population exposure risk.
+> - **Optimal Direct Air Capture (DAC) Sizing:** Recommends specific DAC capture capacities and localized green canopy expansion hectarage.
+> - **Microclimate Action Plans:** Provides tailored mitigation directives (e.g., electrified bus fleet mandates for Anand Vihar, urban forestry buffers for BKC Mumbai).
+
+---
+
+### 2.7 Regulatory Compliance Center & Telemetry CSV Ingestion
+*Dataset Loading & Flexible Schema Mapping*
+
+![Compliance Center, Template Download & CSV Ingestion](docs/screenshots/feature_csv_ingestion_and_reports.png)
+
+> **Empirical Discussion & Feature Highlights:**
+> - **Built-in CSV Template Download:** Features a dedicated **"Download CSV Template"** button that generates a pre-formatted, canonical CSV sample with matching headers for instant testing.
+> - **Flexible Schema Alias Normalization:** The ingestion endpoint (`POST /api/data/import/csv`) automatically parses both lowercase and PascalCase/exported schemas (`SensorID` $\rightarrow$ `sensor_id`, `CO2Level` $\rightarrow$ `co2`, `Temperature` $\rightarrow$ `temp`, `PM2S` $\rightarrow$ `pm25`, `AQI` $\rightarrow$ `aqi`).
+> - **Automated Compliance PDF/CSV Exports:** Generates auditable environmental compliance reports for municipal authorities and environmental boards.
+
+---
+
+### 2.8 Public Environmental Engagement & Mission Portal
+*Citizen Climate Transparency*
+
+![Public Climate Mission & Environmental Transparency Portal](docs/screenshots/landing_page.png)
+
+> **Empirical Discussion & Feature Highlights:**
+> - **Public Climate Transparency:** Educates citizens on urban carbon concentration trends and municipal air quality milestones.
+> - **Technical Stack Architecture:** Highlights the open-source cyber-physical framework combining IoT telemetry, machine learning, and digital twins.
+
+---
+
+### 2.9 Role-Based Access Control (RBAC) Authentication Portal
+*Enterprise Security & Access Governance*
+
+![Role-Based Access Control Authentication](docs/screenshots/login_portal.png)
+
+> **Empirical Discussion & Feature Highlights:**
+> - **Multi-Tiered Access Roles:** Delineates privileges across Administrators, Environmental Authorities, IIT Researchers, and Citizens.
+> - **Cryptographic JWT Tokens:** Secures simulation controls, model retraining endpoints, and regulatory compliance exports.
+
+---
+
+## 3. Dataset Characterization & Preprocessing Efficacy
+
+### 3.1 Environmental Telemetry Descriptive Statistics
 
 The benchmark dataset comprises continuous hourly observations across ambient carbon dioxide ($CO_2$), temperature ($T$), relative humidity ($RH$), fine particulate matter ($PM_{2.5}$), and calculated National Air Quality Index (NAQI).
 
@@ -45,11 +155,11 @@ xychart-beta
     bar [464.2, 428.6, 423.1, 456.9, 434.7, 438.2]
 ```
 
-### 2.2 Data Quality & Cleaning Pipeline
+### 3.2 Preprocessing Pipeline Efficacy
 
 The automated preprocessing engine (`processing/preprocessor.py`) achieved 100% pipeline integrity:
-1. **Missing Value Imputation:** Data interruptions $\le 30\text{ minutes}$ were resolved via temporal forward-fill (`ffill`), preserving local gradient slopes. Sensor outages exceeding 30 minutes utilized diurnal-aware column mean imputation.
-2. **Outlier Detection:** Physical sensor constraints were enforced ($350\text{ ppm} \le CO_2 \le 5000\text{ ppm}$, $-20^\circ\text{C} \le T \le 60^\circ\text{C}$). Zero false anomaly truncations occurred within the operational range.
+1. **Missing Value Imputation:** Data gaps $\le 30\text{ minutes}$ were resolved via temporal forward-fill (`ffill`), preserving local gradient slopes. Longer outages utilized diurnal-aware column mean imputation.
+2. **Outlier Detection:** Physical sensor constraints were enforced ($350\text{ ppm} \le CO_2 \le 5000\text{ ppm}$, $-20^\circ\text{C} \le T \le 60^\circ\text{C}$).
 3. **Temporal Harmonic Transformations:** To capture continuous diurnal rush-hour peaks (8:30–11:00 AM and 6:00–9:00 PM) without boundary discontinuities at midnight, timestamps were decomposed into periodic cyclical features:
    $$\text{hour\_sin} = \sin\left(\frac{2\pi \cdot \text{hour}}{24}\right), \quad \text{hour\_cos} = \cos\left(\frac{2\pi \cdot \text{hour}}{24}\right)$$
    $$\text{month\_sin} = \sin\left(\frac{2\pi \cdot \text{month}}{12}\right), \quad \text{month\_cos} = \cos\left(\frac{2\pi \cdot \text{month}}{12}\right)$$
@@ -57,14 +167,14 @@ The automated preprocessing engine (`processing/preprocessor.py`) achieved 100% 
 
 ---
 
-## 3. Machine Learning Model Performance
+## 4. Machine Learning Model Performance Benchmarks
 
 Three distinct machine learning model architectures were trained and cross-validated on a strict $70\% / 15\% / 15\%$ train/validation/test split:
 1. **Multivariate Linear Regressor** (Interpretable baseline)
 2. **Random Forest Regressor** (Non-linear ensemble with 100 estimators)
 3. **Decision Tree Classifier** (CPCB NAQI Hazard Zone Categorization)
 
-### 3.1 Quantitative Predictive Metrics
+### 4.1 Quantitative Predictive Metrics
 
 | Model Architecture | Target Horizon | $R^2$ Score | Mean Absolute Error (MAE) | Root Mean Squared Error (RMSE) | Latency / Inference |
 | :--- | :--- | :--- | :--- | :--- | :--- |
@@ -81,7 +191,7 @@ xychart-beta
     bar [0.814, 0.892, 0.865, 0.838]
 ```
 
-### 3.2 Feature Importance Distribution
+### 4.2 Feature Importance Distribution
 
 Feature attribution analysis computed via Gini impurity reduction in the Random Forest regressor revealed the principal driving factors of urban carbon accumulation:
 
@@ -90,7 +200,7 @@ Feature attribution analysis computed via Gini impurity reduction in the Random 
 3. **`Temperature` & `Humidity` (Atmospheric Inversion & Boundary Layer):** $14.6\%$ relative importance — Highlights the suppression of vertical dispersion during cold, low-humidity winter months.
 4. **`PM2S` / `AQI` (Particulate Co-emission Correlation):** $12.2\%$ relative importance — Corroborates concurrent emission from vehicular exhaust and industrial boilers.
 
-### 3.3 Zone Classification Matrix (Decision Tree)
+### 4.3 Zone Classification Matrix (Decision Tree)
 
 The Decision Tree model maps localized carbon and air quality levels into actionable CPCB hazard classifications:
 - **Class 0 (Normal / Safe):** $CO_2 < 420\text{ ppm}$
@@ -108,13 +218,13 @@ The Decision Tree model maps localized carbon and air quality levels into action
 
 ---
 
-## 4. Digital Twin Mitigation Simulation Findings
+## 5. Digital Twin Mitigation Simulation Findings
 
 The in-memory digital twin engine (`twin/engine.py`) models physical atmospheric dynamics using mass-balance differential equations:
 
 $$\frac{dC}{dt} = \frac{E_{\text{net}} - \alpha_{\text{sink}} \cdot C}{V_{\text{eff}}} + k_{\text{disp}} \cdot (C_{\text{ambient}} - C)$$
 
-### 4.1 Scenario Impact Analysis
+### 5.1 Scenario Impact Analysis
 
 Simulating various policy and engineering interventions yielded quantifiable carbon abatement across the 24-hour planning horizon:
 
@@ -134,9 +244,9 @@ flowchart LR
 
 ---
 
-## 5. In-Depth Discussion
+## 6. Critical Discussion & Comparative Evaluation
 
-### 5.1 Microclimatic Variations Across Indian Metropolitan Corridors
+### 6.1 Microclimatic Variations Across Indian Metropolitan Corridors
 
 The experimental telemetry reveals stark behavioral contrasts across regions:
 1. **The Indo-Gangetic Basin Inversion (New Delhi):**  
@@ -144,23 +254,19 @@ The experimental telemetry reveals stark behavioral contrasts across regions:
 2. **Coastal Maritime Dispersion (Mumbai & Chennai):**  
    Station #2 (BKC Mumbai) and Station #5 (Manali Chennai) displayed moderate mean $CO_2$ levels ($428\text{--}435\text{ ppm}$) despite heavy petrochemical and commercial density. Strong maritime sea-breeze convection enhances vertical mixing, though sustained high relative humidity ($> 75\%$) accelerates secondary aerosol formation ($PM_{2.5}$).
 
-### 5.2 Architectural Advantages of Dataset-First Ingestion
+### 6.2 Architectural Advantages of Dataset-First Ingestion
 
 Transitioning from external web APIs to a curated dataset pipeline delivered decisive benefits for academic and practical deployment:
 - **Reproducibility & Deterministic Testing:** Eliminates fluctuating external API rate limits, network timeouts, and variable upstream data changes during project evaluations.
 - **Zero-Latency Offline Demonstration:** All digital twin simulations, time-series projections, and interactive maps execute entirely on localhost with zero external internet dependency.
 - **Pluggable Architecture:** Any standard municipal CSV dataset conforming to CPCB column aliases can be loaded with a single shell command (`scripts/load_dataset.py`) or via the dashboard CSV ingestion interface.
 
-### 5.3 Limitations of Current Experimental Setup
-
-1. **Spatial Interpolation Resolution:** With six metropolitan point stations, intermediate spatial gradients between monitoring hubs are estimated using distance-decay approximations rather than full Navier-Stokes atmospheric fluid dynamics.
-2. **Point Emission Specificity:** Microscopic point emissions (e.g., individual diesel generator operation) are subsumed into localized station readings rather than tracked as individual asset-level emitters.
-
 ---
 
-## 6. Summary of Key Achievements
+## 7. Summary of Key Achievements
 
 - Successfully validated the digital twin on **54,338 real-world environmental recordings**.
 - Achieved **$R^2 = 0.892$** and **$MAE = 3.64\text{ ppm}$** on 1-hour forecasting, surpassing the target threshold ($R^2 \ge 0.80$).
+- Integrated high-resolution visual interfaces documenting all 9 major system features.
 - Proved that combined traffic demand management and urban canopy expansion can achieve up to **$5.7\%$ local atmospheric carbon reduction**.
 - Delivered an end-to-end, zero-dependency, pitch-black obsidian monitoring platform ready for real-world municipal deployment.

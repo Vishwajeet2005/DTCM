@@ -198,6 +198,18 @@ document.addEventListener('DOMContentLoaded', () => {
         fetchLiveData(true);
         fetchAlerts(true);
     }, 30000);
+
+    // Deep-linking via URL query params for direct feature navigation
+    const urlParams = new URLSearchParams(window.location.search);
+    const tabParam = urlParams.get('tab');
+    if (tabParam) {
+        navigateTo(tabParam);
+    }
+    const modalParam = urlParams.get('modal');
+    if (modalParam === 'city') {
+        const sensorId = urlParams.get('sensor_id') || 1;
+        setTimeout(() => openCityDetailModal(sensorId), 500);
+    }
 });
 
 // ==========================================
